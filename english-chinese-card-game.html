@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>中英單字配對翻牌（單人）</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --primary:#2563eb;
+    --accent:#10b981;
+    --danger:#ef4444;
+    --text:#111827;
+    --muted:#6b7280;
+    --shadow: 0 6px 20px rgba(0,0,0,.08);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+    background:var(--bg); color:var(--text);
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  header{
+    padding:16px 18px; background:#fff; box-shadow: var(--shadow); position:sticky; top:0; z-index:10;
+  }
+  .bar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; max-width:1200px; margin:0 auto;
+  }
+  .title{font-weight:800; letter-spacing:.5px; font-size:18px}
+  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  button, select, input[type="file"]::file-selector-button{
+    border:none; background:var(--primary); color:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700;
+    box-shadow: var(--shadow); transition: transform .05s ease;
+  }
+  button:active{ transform: scale(.98) }
+  button.secondary{ background:#0ea5e9 }
+  button.success{ background:var(--accent) }
+  button.danger{ background:var(--danger) }
+  select{
+    background:#fff; color:var(--text); border:1px solid #e5e7eb; box-shadow:none; padding:10px 12px; font-weight:600
+  }
+  input[type="file"]{ border:1px dashed #cbd5e1; padding:6px; border-radius:10px; background:#fff }
+  main{ flex:1; display:flex; align-items:center; justify-content:center; padding:18px }
+  .wrap{ width:100%; max-width:1200px; display:grid; grid-template-columns: 300px 1fr; gap:16px }
+  @media (max-width: 980px){ .wrap{ grid-template-columns:1fr } }
+  .panel{
+    background:#fff; border-radius:var(--radius); box-shadow: var(--shadow); padding:16px;
+  }
+  .stats{ display:grid; grid-template-columns: 1fr 1fr; gap:10px }
+  .stat{
+    background:#f9fafb; border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:4px
+  }
+  .stat .label{ font-size:12px; color:var(--muted); letter-spacing:.5px }
+  .stat .value{ font-size:20px; font-weight:800 }
+
+  .grid{
+    background:#fff; border-radius:var(--radius); box-shadow: var(--shadow);
+    padding:16px; display:grid; gap:12px; align-items:stretch; justify-items:stretch;
+  }
+  /* 依總張數調整列數（英文與中文合併為 2n 張） */
+  .grid[data-count="12"] { grid-template-columns: repeat(4, 1fr) }
+  .grid[data-count="16"] { grid-template-columns: repeat(4, 1fr) }
+  .grid[data-count="20"] { grid-template-columns: repeat(5, 1fr) }
+  .grid[data-count="24"] { grid-template-columns: repeat(6, 1fr) }
+  .grid[data-count="30"] { grid-template-columns: repeat(6, 1fr) }
+  .grid[data-count="40"] { grid-template-columns: repeat(8, 1fr) }
+  @media (max-width: 900px){
+    .grid{ gap:10px }
+    .grid[data-count="20"], .grid[data-count="24"], .grid[data-count="30"], .grid[data-count="40"] { grid-template-columns: repeat(4, 1fr) }
+  }
+
+  .card{ position:relative; height:120px; perspective:900px; cursor:pointer; }
+  @media (max-width: 720px){ .card{ height:96px } }
+  .card-inner{ position:absolute; inset:0; transition: transform .35s ease; transform-style: preserve-3d; }
+  .card.flipped .card-inner{ transform: rotateY(180deg) }
+  .face{
+    position:absolute; inset:0; border-radius:16px; backface-visibility:hidden; display:flex; align-items:center; justify-content:center;
+    padding:10px; border:1px solid #e5e7eb; background:var(--card);
+  }
+  .front{ background:linear-gradient(135deg,#eff6ff,#f0fdfa); }
+  .back{ transform: rotateY(180deg); }
+  .face .card-content{
+    text-align:center; line-height:1.2; word-break:break-word; overflow:hidden;
+    display:-webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    font-weight:800;
+    font-size: clamp(16px, 2.4vw, 24px);
+  }
+  .badge{ position:absolute; top:8px; right:10px; font-size:11px; color:#fff; background:#a78bfa; padding:4px 8px; border-radius:999px; font-weight:800; letter-spacing:.3px }
+  .card.matched .back{ outline:3px solid var(--accent) }
+  .hint{ margin-top:10px; font-size:12px; color:var(--muted) }
+  .footer{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap }
+  .hidden{ display:none !important }
+  .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:18px; background:#111827; color:#fff; padding:10px 14px; border-radius:12px; box-shadow: var(--shadow); opacity:0; pointer-events:none; transition:opacity .25s }
+  .toast.show{ opacity:1 }
+</style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div class="title">中英單字配對｜單人翻牌</div>
+      <div class="controls">
+        <label>牌組大小
+          <select id="pairCount">
+            <option value="6">6 對（12 張）</option>
+            <option value="8">8 對（16 張）</option>
+            <option value="10" selected>10 對（20 張）</option>
+            <option value="12">12 對（24 張）</option>
+            <option value="15">15 對（30 張）</option>
+            <option value="20">20 對（40 張）</option>
+          </select>
+        </label>
+        <input id="fileInput" type="file" accept=".txt,.csv" />
+        <button id="useBuiltin" class="secondary" title="改回內建詞庫">使用內建詞庫</button>
+        <button id="newGame" class="success">重新開始</button>
+        <button id="reveal3" class="danger" title="暫時提示：短暫揭示全部 1.2 秒">提示一下</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <aside class="panel">
+        <h3 style="margin:0 0 8px 0">統計</h3>
+        <div class="stats">
+          <div class="stat"><div class="label">配對完成</div><div id="statMatched" class="value">0</div></div>
+          <div class="stat"><div class="label">剩餘配對</div><div id="statRemain" class="value">0</div></div>
+          <div class="stat"><div class="label">翻牌次數</div><div id="statFlips" class="value">0</div></div>
+          <div class="stat"><div class="label">正確率</div><div id="statAcc" class="value">0%</div></div>
+          <div class="stat"><div class="label">用時</div><div id="statTime" class="value">00:00</div></div>
+          <div class="stat"><div class="label">詞庫來源</div><div id="statSrc" class="value" style="font-size:14px">內建</div></div>
+        </div>
+        <div class="hint">上傳詞庫格式：每行 <code>英文=中文</code> 或 <code>英文,中文</code>。空行與註解（以 <code>#</code> 開頭）會被忽略。</div>
+        <div class="footer">
+          <button id="shuffle" title="隨機打亂並保留目前詞庫">洗牌</button>
+          <button id="peek" class="secondary" title="看答案（1.2 秒）">偷看 1.2 秒</button>
+          <button id="resetStats" class="danger" title="不重抽牌，僅重置統計">重置統計</button>
+        </div>
+      </aside>
+
+      <section class="grid" id="grid" data-count="20" aria-live="polite"></section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  /*** 詞庫（內建） ***/
+  const builtin = `
+apple=蘋果
+banana=香蕉
+cat=貓
+dog=狗
+book=書
+school=學校
+teacher=老師
+student=學生
+water=水
+milk=牛奶
+ball=球
+car=汽車
+bird=鳥
+fish=魚
+red=紅色
+blue=藍色
+green=綠色
+yellow=黃色
+big=大的
+small=小的
+run=跑
+jump=跳
+open=打開
+close=關閉
+happy=快樂的
+sad=傷心的
+hot=熱的
+cold=冷的
+chair=椅子
+table=桌子
+window=窗戶
+door=門
+apple pie=蘋果派
+computer=電腦
+phone=手機
+music=音樂
+movie=電影
+dance=跳舞
+write=寫
+read=讀
+play=玩
+family=家庭
+friend=朋友
+food=食物
+city=城市
+country=國家
+river=河流
+mountain=山
+sea=海
+`.trim();
+
+  /*** 狀態 ***/
+  let source = 'builtin';
+  let pool = parseTextToPairs(builtin); // [{en, zh}]
+  let game = null; // 遊戲狀態物件
+  let timer = null; let startAt = null;
+
+  /*** DOM 快取 ***/
+  const $grid = document.getElementById('grid');
+  const $pairCount = document.getElementById('pairCount');
+  const $file = document.getElementById('fileInput');
+  const $src = document.getElementById('statSrc');
+  const $matched = document.getElementById('statMatched');
+  const $remain = document.getElementById('statRemain');
+  const $flips = document.getElementById('statFlips');
+  const $acc = document.getElementById('statAcc');
+  const $time = document.getElementById('statTime');
+  const $toast = document.getElementById('toast');
+
+  document.getElementById('newGame').addEventListener('click', newGame);
+  document.getElementById('shuffle').addEventListener('click', ()=>{ if(game){ deal(game.pairsRaw) } });
+  document.getElementById('peek').addEventListener('click', ()=> temporaryReveal(1200));
+  document.getElementById('reveal3').addEventListener('click', ()=> temporaryReveal(1200));
+  document.getElementById('resetStats').addEventListener('click', ()=> resetStats(false));
+  document.getElementById('useBuiltin').addEventListener('click', ()=>{ pool = parseTextToPairs(builtin); source='builtin'; $src.textContent='內建'; newGame(); toast('已換回內建詞庫'); });
+  $pairCount.addEventListener('change', ()=> newGame());
+  $file.addEventListener('change', handleFile);
+
+  /*** 初始化 ***/
+  newGame();
+
+  /*** 主要流程 ***/
+  function newGame(){
+    stopTimer(); startAt = Date.now(); timer = setInterval(updateTime, 500);
+    const n = clamp(parseInt($pairCount.value||'10',10), 1, 200);
+    const selected = pickPairs(pool, n);
+    deal(selected);
+    resetStats(true);
+  }
+
+  function deal(pairs){
+    // pairs: [{en, zh}]
+    game = {
+      lock: false,
+      flipped: [], // 已翻開但未判定的卡片元素陣列
+      matches: 0,
+      flips: 0,
+      cards: [],
+      pairCount: pairs.length,
+      pairsRaw: pairs
+    };
+
+    // 生成卡片資料（每組一張英文、一張中文）
+    let idCounter = 1;
+    const cards = [];
+    pairs.forEach((p, idx)=>{
+      const pid = idx + 1;
+      cards.push({ id:idCounter++, pid, type:'en', text:p.en });
+      cards.push({ id:idCounter++, pid, type:'zh', text:p.zh });
+    });
+    shuffle(cards);
+
+    // 渲染
+    $grid.innerHTML='';
+    $grid.dataset.count = String(cards.length);
+    cards.forEach(c=>{
+      const el = createCardEl(c);
+      $grid.appendChild(el);
+      game.cards.push({ data:c, el });
+    });
+
+    // 進場小動畫：全部翻正 350ms，0.6s 後蓋回
+    setTimeout(()=> cardsFlipAll(true), 50);
+    setTimeout(()=> cardsFlipAll(false), 650);
+
+    updateStats();
+  }
+
+  function createCardEl(card){
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.setAttribute('role','button');
+    el.setAttribute('tabindex','0');
+    el.dataset.id = card.id;
+    el.dataset.pid = card.pid;
+    el.dataset.type = card.type;
+
+    el.innerHTML = `
+      <div class="card-inner">
+        <div class="face front"><div class="card-content">？</div></div>
+        <div class="face back">
+          <div class="card-content" title="${escapeHtml(card.text)}">${escapeHtml(card.text)}</div>
+          <div class="badge">${card.type==='en'?'EN':'中'}</div>
+        </div>
+      </div>`;
+
+    el.addEventListener('click', ()=> onCardClick(el));
+    el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onCardClick(el);} });
+    return el;
+  }
+
+  function onCardClick(el){
+    if(game.lock) return;
+    if(el.classList.contains('matched')) return;
+    if(el.classList.contains('flipped')) return;
+
+    flip(el,true);
+    game.flipped.push(el);
+
+    if(game.flipped.length===2){
+      game.lock=true; game.flips++;
+      const [a,b] = game.flipped;
+      const isMatch = a.dataset.pid===b.dataset.pid && a.dataset.type!==b.dataset.type;
+      if(isMatch){
+        setTimeout(()=>{
+          a.classList.add('matched');
+          b.classList.add('matched');
+          game.matches++;
+          game.flipped.length=0;
+          game.lock=false;
+          updateStats();
+          if(game.matches===game.pairCount){ onWin(); }
+        }, 220);
+      }else{
+        setTimeout(()=>{
+          flip(a,false); flip(b,false);
+          game.flipped.length=0; game.lock=false; updateStats();
+        }, 700);
+      }
+      updateStats();
+    }
+  }
+
+  function onWin(){
+    stopTimer();
+    toast(`完成！用時 ${$time.textContent}｜正確率 ${$acc.textContent}｜翻牌 ${game.flips} 次`);
+  }
+
+  /*** 工具 & 統計 ***/
+  function flip(el, show){ el.classList.toggle('flipped', !!show); }
+  function cardsFlipAll(show){
+    const els = Array.from($grid.querySelectorAll('.card'));
+    els.forEach((e,i)=> setTimeout(()=> flip(e,show), i*8));
+  }
+  function updateStats(){
+    $matched.textContent = String(game.matches);
+    $remain.textContent = String(Math.max(0, game.pairCount - game.matches));
+    $flips.textContent = String(game.flips);
+    const acc = game.flips===0? 0 : Math.round((game.matches/game.flips)*100);
+    $acc.textContent = acc + '%';
+  }
+  function resetStats(resetTime){
+    game.matches=0; game.flips=0; updateStats();
+    if(resetTime){ startAt = Date.now(); }
+    updateTime();
+  }
+  function updateTime(){
+    const ms = Math.max(0, Date.now() - (startAt||Date.now()));
+    const t = Math.floor(ms/1000);
+    const mm = String(Math.floor(t/60)).padStart(2,'0');
+    const ss = String(t%60).padStart(2,'0');
+    $time.textContent = `${mm}:${ss}`;
+  }
+  function stopTimer(){ if(timer){ clearInterval(timer); timer=null; } }
+
+  function toast(msg){
+    $toast.textContent = msg; $toast.classList.add('show');
+    setTimeout(()=> $toast.classList.remove('show'), 1800);
+  }
+
+  function temporaryReveal(ms){
+    const els = Array.from($grid.querySelectorAll('.card'));
+    const toClose = els.filter(e=> !e.classList.contains('matched') && !e.classList.contains('flipped'));
+    toClose.forEach(e=> flip(e,true));
+    setTimeout(()=> toClose.forEach(e=> flip(e,false)), ms||1200);
+  }
+
+  function handleFile(e){
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const text = String(reader.result||'');
+        const pairs = parseTextToPairs(text);
+        if(pairs.length<2){ toast('詞庫太少或格式不正確'); return; }
+        pool = pairs; source='upload'; $src.textContent = file.name || '上傳檔';
+        newGame(); toast('詞庫已載入');
+      }catch(err){ console.error(err); toast('載入失敗：格式錯誤'); }
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  /*** 解析上傳文字為配對陣列 ***/
+  function parseTextToPairs(text){
+    const lines = String(text).split(/\r?\n/);
+    const pairs = [];
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line || line.startsWith('#')) continue;
+      let en='', zh='';
+      if(line.includes('=')){
+        [en, zh] = line.split('=').map(s=> s.trim());
+      }else if(line.includes(',')){
+        const idx = line.indexOf(',');
+        en = line.slice(0, idx).trim();
+        zh = line.slice(idx+1).trim();
+      }else{
+        // 若只有一個詞，則跳過（需要中英一對）
+        continue;
+      }
+      if(en && zh){ pairs.push({ en, zh }); }
+    }
+    // 去除重複（依英文鍵）
+    const seen = new Set();
+    const unique = [];
+    for(const p of pairs){ if(!seen.has(p.en)){ seen.add(p.en); unique.push(p); } }
+    return unique;
+  }
+
+  /*** 隨機抽取 n 對 ***/
+  function pickPairs(list, n){
+    const arr = list.slice();
+    shuffle(arr);
+    return arr.slice(0, Math.min(n, arr.length));
+  }
+
+  /*** 洗牌 ***/
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function clamp(x,min,max){ return Math.max(min, Math.min(max, x)); }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+  }
+})();
+</script>
+</body>
+</html>
