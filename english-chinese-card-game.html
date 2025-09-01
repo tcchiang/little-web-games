@@ -95,6 +95,14 @@
   .hidden{ display:none !important }
   .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:18px; background:#111827; color:#fff; padding:10px 14px; border-radius:12px; box-shadow: var(--shadow); opacity:0; pointer-events:none; transition:opacity .25s }
   .toast.show{ opacity:1 }
+  /* === 自訂 Tooltip for 檔案上傳 === */
+  .tipwrap{ position:relative; display:inline-block }
+  .tipwrap .tooltip{ position:absolute; left:0; bottom:-6px; transform:translateY(100%);
+    background:#111827; color:#fff; padding:8px 10px; border-radius:10px; font-size:12px; line-height:1.2;
+    box-shadow:var(--shadow); white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .15s ease, transform .15s ease; z-index:20 }
+  .tipwrap .tooltip::after{ content:""; position:absolute; left:12px; top:-6px; border-width:6px; border-style:solid; border-color:transparent transparent #111827 transparent }
+  .tipwrap:hover .tooltip, .tipwrap:focus-within .tooltip{ opacity:1; transform:translateY(110%) }
+  @media (max-width:600px){ .tipwrap .tooltip{ white-space:normal; max-width:240px } }
 </style>
 </head>
 <body>
@@ -112,7 +120,10 @@
             <option value="20">20 對（40 張）</option>
           </select>
         </label>
-        <input id="fileInput" type="file" accept=".txt,.csv" />
+        <span class="tipwrap">
+          <input id="fileInput" type="file" accept=".txt,.csv" />
+          <span class="tooltip" role="tooltip">純文字格式，每行一個單詞，如 <code>apple=蘋果</code></span>
+        </span>
         <button id="useBuiltin" class="secondary" title="改回內建詞庫">使用內建詞庫</button>
         <button id="newGame" class="success">重新開始</button>
         <button id="reveal3" class="danger" title="暫時提示：短暫揭示全部 1.2 秒">提示一下</button>
