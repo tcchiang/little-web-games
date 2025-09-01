@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Falling Letters — Typing Practice</title>
+  <style>
+    :root{
+      --bg:#0f172a;        /* slate-900 */
+      --bg-2:#1e293b;      /* slate-800 */
+      --panel:#334155;     /* slate-700 */
+      --ink:#e2e8f0;       /* slate-200 */
+      --accent:#6366f1;    /* indigo-500 */
+      --accent-2:#10b981;  /* emerald-500 */
+      --warn:#f59e0b;      /* amber-500 */
+      --left:#34d399;      /* emerald-400 (left hand) */
+      --right:#f472b6;     /* pink-400 (right hand) */
+    }
+    html,body{height:100%;margin:0;background:var(--bg-2);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
+    h1{margin:16px 0;text-align:center;font-weight:800}
+    .bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+    .btn{border:0;border-radius:16px;padding:10px 14px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+    .btn.start{background:var(--accent-2)}
+    .btn.pause{background:var(--warn)}
+    .btn.reset{background:var(--panel)}
+    .chip{display:flex;gap:8px;align-items:center;background:var(--panel);padding:8px 12px;border-radius:16px}
+    select{background:var(--bg);color:var(--ink);border-radius:10px;padding:6px 8px;border:1px solid #475569}
+    .hud{display:flex;gap:16px;align-items:center;background:var(--panel);padding:8px 14px;border-radius:16px}
+    .val{font-weight:800}
+    .stage{position:relative;max-width:960px;height:600px;margin:16px auto;border-radius:20px;background:var(--bg);overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.35)}
+    .ground{position:absolute;left:0;right:0;bottom:0;height:3px;background:#475569}
+    .letter{position:absolute;user-select:none;font-weight:900;font-size:32px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+    .bubble{display:inline-block;padding:6px 12px;border-radius:16px;backdrop-filter:saturate(1.2) blur(2px)}
+    .bubble.left{background:color-mix(in srgb, var(--left) 90%, transparent)}
+    .bubble.right{background:color-mix(in srgb, var(--right) 90%, transparent)}
+    /* Fallback if color-mix unsupported */
+    @supports not (background: color-mix(in srgb, white, black)){
+      .bubble.left{background: rgba(52,211,153,.9)}
+      .bubble.right{background: rgba(244,114,182,.9)}
+    }
+    .center{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px}
+    .panel{background:rgba(30,41,59,.9);border-radius:16px;padding:18px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+    .kbd{display:inline-block;background:#0b1220;border-radius:6px;padding:2px 6px;border:1px solid #263142}
+    .tips{max-width:960px;margin:8px auto 24px;padding:0 12px;opacity:.9}
+    .tips ul{margin:8px 0 0 1.2em}
+    .legend{display:flex;gap:10px;align-items:center;margin-left:8px}
+    .dot{width:14px;height:14px;border-radius:999px}
+  </style>
+</head>
+<body>
+  <h1>Falling Letters — Typing Practice</h1>
+
+  <div class="bar">
+    <button id="startBtn" class="btn start">Start (Space)</button>
+    <button id="resetBtn" class="btn reset">Reset</button>
+
+    <div class="chip">
+      <span>Difficulty</span>
+      <select id="diffSel">
+        <option>Easy</option>
+        <option selected>Normal</option>
+        <option>Hard</option>
+        <option>Insane</option>
+      </select>
+      <div class="legend">
+        <span class="dot" style="background:var(--left)"></span><span style="font-size:12px;opacity:.85">Left-hand letters</span>
+        <span class="dot" style="background:var(--right)"></span><span style="font-size:12px;opacity:.85">Right-hand letters</span>
+      </div>
+    </div>
+
+    <div class="hud">
+      <div>Score <span id="score" class="val">0</span></div>
+      <div>Combo <span id="combo" class="val">0x</span></div>
+      <div>Lives <span id="lives" class="val">5</span></div>
+      <div>Best <span id="best" class="val">0</span></div>
+    </div>
+  </div>
+
+  <div id="stage" class="stage" tabindex="0" aria-label="game stage" aria-live="polite">
+    <div class="ground"></div>
+    <div id="overlay" class="center"></div>
+  </div>
+
+  <div class="tips">
+    <h3>How to Play</h3>
+    <ul>
+      <li>按下 Start 後，英文字母會從上方掉落；鍵盤輸入相同字母可消除並得分。</li>
+      <li>每次消除得 10 分 + 連擊加成；打錯鍵會清空連擊並小扣分（有紅色音效）。</li>
+      <li>字母落地會扣 1 命（也會有紅色音效），共 5 命。</li>
+      <li>綠色＝左手區（q w e r t | a s d f g | z x c v b），粉紅色＝右手區（y u i o p | h j k l | n m）。</li>
+    </ul>
+  </div>
+
+  <script>
+    (()=>{
+      // Keyboard zones by conventional touch typing mapping
+      const LEFT = new Set('qwertasdfgzxcvb'.split(''));
+      const RIGHT = new Set('yuiophjklnm'.split(''));
+      const ALL = Array.from('abcdefghijklmnopqrstuvwxyz');
+
+      const elStage = document.getElementById('stage');
+      const elOverlay = document.getElementById('overlay');
+      const elStart = document.getElementById('startBtn');
+      const elReset = document.getElementById('resetBtn');
+      const elDiff  = document.getElementById('diffSel');
+      const vScore = document.getElementById('score');
+      const vCombo = document.getElementById('combo');
+      const vLives = document.getElementById('lives');
+      const vBest  = document.getElementById('best');
+
+      let running=false, over=false; let score=0, combo=0, lives=5, best=0;
+      let letters=[]; // {id,x,y,v,char,el}
+      let idSeq=1; let lastSpawn=0; let lastTick=0; let raf=0;
+
+      const presets = {
+        Easy:   { spawnEveryMs: 900, baseSpeed: 30, gravity: 5, maxConcurrent: 8 },
+        Normal: { spawnEveryMs: 700, baseSpeed: 80, gravity: 14, maxConcurrent: 10 },
+        Hard:   { spawnEveryMs: 520, baseSpeed: 110, gravity: 18, maxConcurrent: 14 },
+        Insane: { spawnEveryMs: 380, baseSpeed: 140, gravity: 24, maxConcurrent: 18 },
+      };
+      let settings = { ...presets[elDiff.value] };
+
+      function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+      function rndChar(){ return ALL[Math.floor(Math.random()*ALL.length)]; }
+
+      function setHUD(){ vScore.textContent=score; vCombo.textContent=combo+'x'; vLives.textContent=lives; vBest.textContent=best; }
+      function setStartBtn(){ elStart.textContent = running? 'Pause (Space)' : 'Start (Space)'; elStart.classList.toggle('pause', running); elStart.classList.toggle('start', !running); }
+
+      // --- Simple WebAudio synth for SFX (no external files) ---
+      let AC; const activeNodes = new Set();
+      function ctx(){ return AC ||= new (window.AudioContext||window.webkitAudioContext)(); }
+      function tone({type='sine', f=440, t=0.12, g=0.15, slide=0}){
+        const a = ctx();
+        const now = a.currentTime;
+        const o = a.createOscillator();
+        const v = a.createGain();
+        o.type = type; o.frequency.setValueAtTime(f, now);
+        if (slide){ o.frequency.linearRampToValueAtTime(f+slide, now+t*0.8); }
+        v.gain.setValueAtTime(0, now);
+        v.gain.linearRampToValueAtTime(g, now+0.01);
+        v.gain.exponentialRampToValueAtTime(0.0001, now + t);
+        o.connect(v); v.connect(a.destination); o.start();
+        const node = {o,v}; activeNodes.add(node);
+        o.stop(now + t + 0.02);
+        o.onended = ()=>{ activeNodes.delete(node); v.disconnect(); };
+      }
+      function playGood(){
+        // pleasant up-chirp
+        tone({type:'sine', f:520, t:0.10, g:0.18, slide:120});
+      }
+      function playBad(){
+        // short buzzy down-chirp
+        tone({type:'square', f:220, t:0.12, g:0.18, slide:-80});
+      }
+
+      function reset(){
+        running=false; over=false; score=0; combo=0; lives=5; letters=[]; idSeq=1; lastSpawn=0; lastTick=0;
+        setHUD(); setStartBtn(); elDiff.disabled=false; elOverlay.innerHTML = hintHTML();
+        document.querySelectorAll('.letter').forEach(n=>n.remove());
+      }
+
+      function hintHTML(){
+        return `<div class="panel">
+          <p>Press <span class="kbd">Start</span> to begin.</p>
+          <p style="opacity:.8;margin-top:6px">Type the letters as they fall. Clear them before they hit the ground!</p>
+        </div>`;
+      }
+
+      function gameOver(){
+        over=true; running=false; best=Math.max(best, score); setHUD(); setStartBtn(); elDiff.disabled=false;
+        elOverlay.innerHTML = `<div class="panel">
+          <h2 style="margin:0 0 8px 0">Game Over</h2>
+          <p>Score: <b>${score}</b></p>
+          <p>Best: <b>${best}</b></p>
+          <div style="margin-top:10px">
+            <button class="btn start" id="againBtn">Play Again</button>
+          </div>
+          <p style="opacity:.6;font-size:12px;margin-top:8px">Tip: Keep a high combo for bonus points!</p>
+        </div>`;
+        document.getElementById('againBtn').onclick = reset;
+      }
+
+      function spawn(){
+        const rect = elStage.getBoundingClientRect();
+        const width = rect.width; const margin = 24;
+        if (letters.length >= settings.maxConcurrent) return;
+        const el = document.createElement('span');
+        el.className = 'letter';
+        const ch = rndChar();
+        const isLeft = LEFT.has(ch);
+        const bubbleClass = isLeft ? 'bubble left' : 'bubble right';
+        el.innerHTML = `<span class="${bubbleClass}">${ch.toUpperCase()}</span>`;
+        elStage.appendChild(el);
+        const x = clamp(Math.random()*(width-margin*2)+margin, 12, width-12);
+        letters.push({ id:idSeq++, x, y:-20, v: settings.baseSpeed*(0.85+Math.random()*0.3), char: ch, el });
+        el.style.transform = `translate(${Math.round(x)}px, -20px)`;
+      }
+
+      function tick(t){
+        if (!running) return; if (!lastTick) lastTick=t; const dt=(t-lastTick)/1000; lastTick=t;
+        // spawn
+        if (!lastSpawn) lastSpawn=t; if (t-lastSpawn>=settings.spawnEveryMs){ lastSpawn=t; spawn(); }
+        const height = elStage.getBoundingClientRect().height;
+        const remain=[]; let lost=0;
+        for (const L of letters){
+          L.v += settings.gravity * 60 * dt * 0.016; // gentle accel
+          L.y += L.v * dt;
+          if (L.y >= height - 36){ lost++; L.el.remove(); } else { remain.push(L); L.el.style.transform = `translate(${Math.round(L.x)}px, ${Math.round(L.y)}px)`; }
+        }
+        letters = remain;
+        if (lost>0){ lives -= lost; combo=0; score = Math.max(0, score - lost); playBad(); setHUD(); if (lives<=0) return gameOver(); }
+        raf = requestAnimationFrame(tick);
+      }
+
+      function startPause(){ if (over) return; running=!running; setStartBtn(); elOverlay.innerHTML=''; if (running){ elDiff.disabled=true; raf=requestAnimationFrame(tick);} }
+
+      // input
+      function onKey(e){
+        if (e.code==='Space'){ e.preventDefault(); startPause(); return; }
+        if (!running || over) return;
+        const k = e.key.toLowerCase(); if (k.length!==1 || !/[a-z]/.test(k)) return;
+        if (!letters.length) return;
+        const matches = letters.filter(L=>L.char===k);
+        if (!matches.length){ combo=0; score=Math.max(0, score-1); playBad(); return setHUD(); }
+        // remove the lowest matched letter
+        let target = matches[0]; for (const m of matches){ if (m.y > target.y) target = m; }
+        letters = letters.filter(L=>L.id!==target.id);
+        target.el.remove();
+        combo += 1; score += 10 + Math.min(50, combo*2); setHUD();
+        playGood();
+        if (letters.length < Math.max(4, Math.floor(settings.maxConcurrent*0.5)) && Math.random()<0.25) spawn();
+      }
+
+      // visibility pause
+      document.addEventListener('visibilitychange', ()=>{ if (document.hidden){ running=false; setStartBtn(); }});
+
+      // controls
+      elStart.addEventListener('click', startPause);
+      elReset.addEventListener('click', reset);
+      elDiff.addEventListener('change', ()=>{ settings={...presets[elDiff.value]}; });
+      window.addEventListener('keydown', onKey);
+
+      // init
+      reset();
+    })();
+  </script>
+</body>
+</html>
