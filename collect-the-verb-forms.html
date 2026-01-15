@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>動詞三態落字遊戲 v3</title>
+  <style>
+    :root{
+      --bg1:#f7fbff;
+      --bg2:#fff6fb;
+      --panel:#ffffffcc;
+      --ink:#2b2b2b;
+      --muted:#6b7280;
+      --shadow: 0 10px 25px rgba(0,0,0,.10);
+      --round: 22px;
+      --base:#7dd3fc;
+      --past:#fde68a;
+      --pp:#86efac;
+      --danger:#ff5a7a;
+      --accent:#a78bfa;
+      --gold:#fbbf24;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, var(--bg2), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, var(--bg1), transparent 55%),
+        linear-gradient(180deg, #ffffff, #f8fafc);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:18px;
+    }
+    .app{ width:min(980px, 100%); display:flex; flex-direction:column; gap:14px; }
+
+    .header{
+      background:var(--panel);
+      border:2px solid #ffffff;
+      border-radius:var(--round);
+      box-shadow:var(--shadow);
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      position:sticky;
+      top:10px;
+      backdrop-filter: blur(10px);
+      z-index:5;
+    }
+    .brand{ display:flex; align-items:center; gap:10px; min-width: 240px; }
+    .mascot{
+      width:42px;height:42px;
+      border-radius:14px;
+      background: conic-gradient(from 90deg, #ffb3c7, #ffe8a3, #b9f6ca, #a5d8ff, #ffb3c7);
+      box-shadow: 0 8px 18px rgba(0,0,0,.12);
+      display:grid; place-items:center;
+      transform: rotate(-4deg);
+      user-select:none;
+    }
+    .mascot span{ font-size:22px; filter: drop-shadow(0 2px 0 rgba(255,255,255,.8)); }
+    .title{ display:flex; flex-direction:column; line-height:1.1; }
+    .title b{font-size:16px}
+    .title small{color:var(--muted); font-weight:700}
+
+    .midPills{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; }
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#ffffff;
+      border:2px solid #f1f5f9;
+      box-shadow: 0 8px 16px rgba(0,0,0,.06);
+      font-weight:900;
+      white-space:nowrap;
+      user-select:none;
+    }
+    .pill .icon{font-size:18px}
+    .pill .num{font-size:20px; letter-spacing:.5px}
+    .pill.timer{ border-color:#e9d5ff; }
+    .pill.timer.urgent{ border-color: color-mix(in srgb, var(--danger) 45%, #fff); animation: pulse 0.8s ease-in-out infinite; }
+    @keyframes pulse{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.02); } }
+
+    .controls{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn{
+      border:0; border-radius:999px;
+      padding:10px 14px;
+      font-weight:900;
+      cursor:pointer;
+      background:#ffffff;
+      border:2px solid #e2e8f0;
+      box-shadow: 0 8px 16px rgba(0,0,0,.06);
+      transition: transform .08s ease, filter .08s ease;
+      user-select:none;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); filter: brightness(.98); }
+    .btn.primary{ background: linear-gradient(180deg, #c4b5fd, #a78bfa); color:#1f1b2e; border-color:#b9a7ff; }
+    .btn.gold{ background: linear-gradient(180deg, #fde68a, #fbbf24); color:#3b2a00; border-color:#fcd34d; }
+    .btn.ghost{ background:transparent; border-color:#e5e7eb; }
+    .file{ display:none; }
+
+    .main{ display:grid; grid-template-rows: 1fr auto; gap:14px; }
+
+    .playWrap{
+      position:relative;
+      border-radius:var(--round);
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border:2px solid #ffffff;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      height: 520px;
+    }
+
+    .cloud{
+      position:absolute; top:14px; left:18px;
+      width:160px;height:60px;
+      opacity:.22;
+      filter: blur(.2px);
+      background:
+        radial-gradient(circle at 20% 60%, #93c5fd 0 18px, transparent 19px),
+        radial-gradient(circle at 40% 40%, #fda4af 0 22px, transparent 23px),
+        radial-gradient(circle at 60% 60%, #fde68a 0 18px, transparent 19px),
+        radial-gradient(circle at 80% 45%, #86efac 0 20px, transparent 21px);
+      pointer-events:none;
+    }
+    .cloud.c2{ left:auto; right:18px; top:44px; transform: scale(1.1) rotate(2deg); opacity:.18; }
+
+    .hint{ position:absolute; left:16px; right:16px; top:14px; display:flex; justify-content:center; pointer-events:none; z-index:1; }
+    .hint .bubble{
+      background: #ffffffcc;
+      border:2px solid #ffffff;
+      box-shadow: 0 10px 22px rgba(0,0,0,.10);
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:900;
+      color:#374151;
+      backdrop-filter: blur(8px);
+      transform: translateY(0);
+      opacity: 0;
+      transition: opacity .25s ease, transform .25s ease;
+      max-width: 92%;
+      text-align:center;
+    }
+    .hint .bubble.show{ opacity:1; transform: translateY(6px); }
+
+    .stage{ position:absolute; inset:0; overflow:hidden; }
+
+    .block{
+      position:absolute;
+      top:-80px;
+      padding:10px 14px;
+      border-radius:16px;
+      font-weight:900;
+      font-size:20px;
+      background:#ffffff;
+      border:2px solid #e5e7eb;
+      box-shadow: 0 12px 22px rgba(0,0,0,.12);
+      cursor:pointer;
+      user-select:none;
+      transform-origin:center;
+      transition: filter .12s ease;
+      will-change: transform, top, left;
+    }
+    .block:hover{ filter: brightness(1.02); }
+    .block:active{ transform: scale(.98); }
+    .block .tag{
+      display:inline-block;
+      margin-left:10px;
+      font-size:12px;
+      font-weight:900;
+      padding:3px 8px;
+      border-radius:999px;
+      background:#f1f5f9;
+      color:#334155;
+      border:1px solid #e2e8f0;
+      vertical-align:middle;
+    }
+    .block.flash-wrong{ animation: wrongFlash .28s ease 0s 2; }
+    @keyframes wrongFlash{
+      0%{ background:#fff; transform: translateX(0) scale(1); }
+      30%{ background: color-mix(in srgb, var(--danger) 28%, #fff); transform: translateX(-2px) scale(1.01);} 
+      60%{ background: color-mix(in srgb, var(--danger) 28%, #fff); transform: translateX(2px) scale(1.01);} 
+      100%{ background:#fff; transform: translateX(0) scale(1); }
+    }
+    .block.wiggle{ animation: wiggle .18s ease 0s 2; }
+    @keyframes wiggle{
+      0%{ transform: rotate(0deg); }
+      50%{ transform: rotate(-3deg) scale(1.01); }
+      100%{ transform: rotate(0deg); }
+    }
+
+    .collect{
+      background:var(--panel);
+      border:2px solid #ffffff;
+      border-radius:var(--round);
+      box-shadow:var(--shadow);
+      padding:12px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      backdrop-filter: blur(10px);
+    }
+    .slot{
+      background:#ffffff;
+      border:2px dashed #e2e8f0;
+      border-radius:18px;
+      padding:10px 12px;
+      min-height:84px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:6px;
+      position:relative;
+      overflow:hidden;
+    }
+    .slot .label{ font-weight:900; font-size:13px; color:#334155; display:flex; align-items:center; gap:8px; }
+    .slot .label .pillDot{ width:12px;height:12px;border-radius:999px; display:inline-block; }
+    .slot .word{ font-weight:1000; font-size:26px; letter-spacing:.4px; color:#111827; line-height:1; min-height:30px; }
+    .slot .placeholder{ color:#94a3b8; font-weight:800; font-size:14px; }
+    .slot.pop{ animation: pop .18s ease; }
+    @keyframes pop{ 0%{ transform: scale(1); } 60%{ transform: scale(1.03); } 100%{ transform: scale(1); } }
+    .slot.glow{ box-shadow: 0 0 0 0 rgba(167,139,250,.0); animation: glow 0.55s ease; }
+    @keyframes glow{ 0%{ box-shadow: 0 0 0 0 rgba(167,139,250,.0);} 30%{ box-shadow: 0 0 0 8px rgba(167,139,250,.18);} 100%{ box-shadow: 0 0 0 0 rgba(167,139,250,.0);} }
+
+    .toast{
+      position:absolute; left:50%; top:50%;
+      transform: translate(-50%,-50%);
+      background:#ffffffdd;
+      border:2px solid #ffffff;
+      border-radius:999px;
+      padding:12px 18px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.14);
+      font-weight:1000;
+      font-size:22px;
+      opacity:0;
+      pointer-events:none;
+      backdrop-filter: blur(10px);
+    }
+    .toast.show{ animation: toast 0.95s ease; }
+    @keyframes toast{
+      0%{ opacity:0; transform: translate(-50%,-60%) scale(.95); }
+      20%{ opacity:1; transform: translate(-50%,-50%) scale(1); }
+      70%{ opacity:1; transform: translate(-50%,-52%) scale(1.02); }
+      100%{ opacity:0; transform: translate(-50%,-70%) scale(.98); }
+    }
+
+    /* Modal base */
+    .modalBackdrop{ position:fixed; inset:0; background: rgba(15, 23, 42, .35); display:none; align-items:center; justify-content:center; padding:18px; z-index:50; }
+    .modalBackdrop.show{ display:flex; }
+    .modal{ width:min(760px, 100%); background:#fff; border-radius:26px; box-shadow: 0 18px 50px rgba(0,0,0,.22); border:2px solid #ffffff; overflow:hidden; position:relative; }
+    .modalHeader{ padding:14px 16px; display:flex; justify-content:space-between; align-items:center; background: linear-gradient(180deg, #f5f3ff, #ffffff); border-bottom:1px solid #f1f5f9; }
+    .modalHeader b{ font-size:16px }
+    .modalBody{ padding:14px 16px 16px; color:#334155; line-height:1.6; font-weight:800; }
+    .kbd{ display:inline-block; padding:2px 8px; border-radius:10px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:900; font-size:12px; color:#0f172a; }
+    .mini{ font-size:13px; color:#64748b; font-weight:800; }
+
+    /* Leaderboard */
+    .lbHero{
+      background: radial-gradient(900px 200px at 20% 10%, #fff7ed, transparent 60%),
+                  radial-gradient(700px 220px at 80% 20%, #ecfeff, transparent 55%),
+                  linear-gradient(180deg, #fff, #f8fafc);
+      border-bottom:1px solid #f1f5f9;
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .lbTitle{ display:flex; align-items:center; gap:12px; font-weight:1000; }
+    .trophy{
+      width:44px;height:44px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background: conic-gradient(from 90deg, #fde68a, #fbbf24, #fde68a);
+      box-shadow: 0 12px 24px rgba(0,0,0,.12);
+      border:2px solid #fff;
+      transform: rotate(-5deg);
+    }
+    .trophy span{ font-size:22px; filter: drop-shadow(0 2px 0 rgba(255,255,255,.8)); }
+
+    .lbTable{ width:100%; border-collapse:separate; border-spacing:0 10px; margin-top:10px; }
+    .lbRow{ background:#fff; border:2px solid #f1f5f9; box-shadow: 0 10px 20px rgba(0,0,0,.06); border-radius:18px; }
+    .lbTable td{ padding:10px 12px; font-weight:900; vertical-align:middle; }
+    .rank{ width:56px; text-align:center; font-size:18px; }
+    .rank.badge1{ color:#7c5a00; }
+    .rank.badge2{ color:#334155; }
+    .rank.badge3{ color:#6b7280; }
+    .nameCell{ font-size:16px; }
+    .scoreCell{ text-align:right; font-size:18px; }
+    .dateCell{ text-align:right; color:#64748b; font-size:12px; font-weight:800; }
+
+    .sparkle{
+      position:absolute; inset:-60px -60px auto -60px; height:160px;
+      pointer-events:none; opacity:.35;
+      background:
+        radial-gradient(circle at 10% 70%, #fbbf24 0 6px, transparent 7px),
+        radial-gradient(circle at 25% 40%, #a78bfa 0 5px, transparent 6px),
+        radial-gradient(circle at 42% 65%, #fb7185 0 6px, transparent 7px),
+        radial-gradient(circle at 60% 35%, #22c55e 0 5px, transparent 6px),
+        radial-gradient(circle at 80% 55%, #38bdf8 0 6px, transparent 7px);
+      animation: sparkle 2.2s ease-in-out infinite;
+    }
+    @keyframes sparkle{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(8px); } }
+
+    /* Name input */
+    .nameCard{
+      background: linear-gradient(180deg, #f5f3ff, #ffffff);
+      border:2px solid #ffffff;
+      box-shadow: 0 12px 26px rgba(0,0,0,.10);
+      border-radius:22px;
+      padding:14px 14px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .nameCard .big{ font-weight:1000; font-size:18px; display:flex; align-items:center; gap:10px; }
+    .nameRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .input{
+      flex:1; min-width: 220px;
+      border-radius:14px; border:2px solid #e2e8f0;
+      padding:10px 12px; font-size:16px; font-weight:900; outline:none;
+    }
+    .input:focus{ border-color:#c4b5fd; box-shadow: 0 0 0 6px rgba(167,139,250,.16); }
+
+    @media (max-width:880px){ .brand{min-width:auto} }
+    @media (max-width:720px){ .block{ font-size:18px; } .slot .word{ font-size:24px; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="brand">
+        <div class="mascot" title="小雞老師"><span>🐥</span></div>
+        <div class="title">
+          <b>動詞三態落字遊戲 v3</b>
+          <small>90 秒挑戰＋Top 5 高分榜</small>
+        </div>
+      </div>
+
+      <div class="midPills">
+        <div class="pill" aria-live="polite" title="目前分數">
+          <span class="icon">⭐</span>
+          <span>Score</span>
+          <span class="num" id="scoreNum">0</span>
+        </div>
+        <div class="pill timer" id="timerPill" aria-live="polite" title="剩餘時間">
+          <span class="icon">⏳</span>
+          <span>Time</span>
+          <span class="num" id="timeNum">90</span>
+          <span style="font-weight:900">s</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn primary" id="btnStart">開始</button>
+        <button class="btn" id="btnPause" disabled>暫停</button>
+        <button class="btn" id="btnReset">重置</button>
+        <button class="btn gold" id="btnBoard">高分榜</button>
+        <label class="btn" for="fileInput" title="匯入 .txt 題庫">匯入題庫</label>
+        <input class="file" id="fileInput" type="file" accept=".txt,text/plain" />
+        <button class="btn ghost" id="btnHelp">說明(?)</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="playWrap">
+        <div class="cloud"></div>
+        <div class="cloud c2"></div>
+
+        <div class="hint">
+          <div class="bubble" id="topHint">按「開始」！90 秒內集滿越多三態越好～</div>
+        </div>
+
+        <div class="stage" id="stage"></div>
+        <div class="toast" id="toast">Perfect! +1 ⭐</div>
+      </div>
+
+      <div class="collect" aria-label="搜集區">
+        <div class="slot" id="slot0">
+          <div class="label"><span class="pillDot" style="background:var(--base)"></span>Base（原形）</div>
+          <div class="word" id="word0"></div>
+          <div class="placeholder" id="ph0">Tap a word!</div>
+        </div>
+        <div class="slot" id="slot1">
+          <div class="label"><span class="pillDot" style="background:var(--past)"></span>Past（過去式）</div>
+          <div class="word" id="word1"></div>
+          <div class="placeholder" id="ph1">Tap a word!</div>
+        </div>
+        <div class="slot" id="slot2">
+          <div class="label"><span class="pillDot" style="background:var(--pp)"></span>P.P.（過去分詞）</div>
+          <div class="word" id="word2"></div>
+          <div class="placeholder" id="ph2">Tap a word!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div class="modalBackdrop" id="helpBackdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modalHeader">
+        <b>遊戲說明</b>
+        <button class="btn" id="btnCloseHelp">關閉</button>
+      </div>
+      <div class="modalBody">
+        <div>1) 上面會掉下動詞單字塊，<b>用滑鼠點它</b>來收集。</div>
+        <div>2) 下面三格依序是：<span class="kbd">Base</span>、<span class="kbd">Past</span>、<span class="kbd">P.P.</span></div>
+        <div>3) 先點到第一個字後，就開始收集<b>同一個動詞</b>的三態。</div>
+        <div>4) 點到不屬於同一動詞的字：會<b>紅色閃一下</b>再消失（不會放進去）。</div>
+        <div>5) 若你點到的字已經「沒有可以放的格子」（例如 Past 已有 <b>did</b> 又點到 <b>did</b>），那這次點擊<b>沒作用</b>，字塊也<b>不會消失</b>。</div>
+        <div>6) v3 節奏：當你已鎖定目標動詞時，<b>缺的態更常掉</b>；若超過 <b>3 秒</b> 沒掉缺的態，下一個會<b>保底必出</b>。</div>
+        <div>7) 遊戲時間 <b>90 秒</b>，結束會自動比對高分榜（保留前 5 名）。</div>
+        <div class="mini">小提示：單字掉到底部沒點到就消失，不扣分喔～</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Modal -->
+  <div class="modalBackdrop" id="boardBackdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="sparkle"></div>
+      <div class="lbHero">
+        <div class="lbTitle">
+          <div class="trophy"><span>🏆</span></div>
+          <div>
+            <div style="font-size:18px; font-weight:1000; line-height:1.1;">超級高分榜</div>
+            <div style="color:#64748b; font-weight:900; font-size:13px;">最近的前 5 名紀錄（存在這台電腦）</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="btn" id="btnClearBoard" title="清除本機高分榜">清除紀錄</button>
+          <button class="btn" id="btnCloseBoard">關閉</button>
+        </div>
+      </div>
+      <div class="modalBody" id="boardBody"></div>
+    </div>
+  </div>
+
+  <!-- Name input Modal -->
+  <div class="modalBackdrop" id="nameBackdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="sparkle"></div>
+      <div class="modalHeader">
+        <b>🎉 恭喜！你進入前 5 名！</b>
+        <button class="btn" id="btnSkipName">略過</button>
+      </div>
+      <div class="modalBody">
+        <div class="nameCard">
+          <div class="big">✨ 請輸入你的名字（最多 10 字）</div>
+          <div class="mini">這會把你的分數放進「高分榜」喔！</div>
+          <div class="nameRow">
+            <input class="input" id="nameInput" maxlength="10" placeholder="例如：小明" />
+            <button class="btn gold" id="btnSaveName">加入高分榜</button>
+          </div>
+          <div class="mini" id="nameHint">本局分數：<b id="finalScorePreview">0</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const GAME_SECONDS = 90;
+  const STORAGE_KEY = "verbTrioHighscoresV3";
+
+  const DEFAULT_VERBS = [
+    ["do","did","done"],
+    ["make","made","made"],
+    ["write","wrote","written"],
+    ["go","went","gone"],
+    ["see","saw","seen"],
+    ["eat","ate","eaten"],
+    ["take","took","taken"],
+    ["come","came","come"],
+    ["give","gave","given"],
+    ["get","got","gotten"],
+    ["run","ran","run"],
+    ["read","read","read"],
+    ["drink","drank","drunk"],
+    ["sing","sang","sung"],
+    ["swim","swam","swum"],
+    ["buy","bought","bought"],
+    ["teach","taught","taught"],
+    ["think","thought","thought"],
+    ["bring","brought","brought"],
+    ["sleep","slept","slept"],
+    ["feel","felt","felt"],
+    ["find","found","found"],
+    ["have","had","had"],
+    ["say","said","said"],
+    ["tell","told","told"],
+  ];
+
+  const stage = document.getElementById("stage");
+  const scoreNum = document.getElementById("scoreNum");
+  const timeNum = document.getElementById("timeNum");
+  const timerPill = document.getElementById("timerPill");
+  const topHint = document.getElementById("topHint");
+  const toast = document.getElementById("toast");
+
+  const btnStart = document.getElementById("btnStart");
+  const btnPause = document.getElementById("btnPause");
+  const btnReset = document.getElementById("btnReset");
+  const btnHelp = document.getElementById("btnHelp");
+  const btnBoard = document.getElementById("btnBoard");
+
+  const helpBackdrop = document.getElementById("helpBackdrop");
+  const btnCloseHelp = document.getElementById("btnCloseHelp");
+
+  const boardBackdrop = document.getElementById("boardBackdrop");
+  const boardBody = document.getElementById("boardBody");
+  const btnCloseBoard = document.getElementById("btnCloseBoard");
+  const btnClearBoard = document.getElementById("btnClearBoard");
+
+  const nameBackdrop = document.getElementById("nameBackdrop");
+  const nameInput = document.getElementById("nameInput");
+  const btnSaveName = document.getElementById("btnSaveName");
+  const btnSkipName = document.getElementById("btnSkipName");
+  const finalScorePreview = document.getElementById("finalScorePreview");
+
+  const fileInput = document.getElementById("fileInput");
+
+  const slotEls = [document.getElementById("slot0"), document.getElementById("slot1"), document.getElementById("slot2")];
+  const wordEls = [document.getElementById("word0"), document.getElementById("word1"), document.getElementById("word2")];
+  const phEls   = [document.getElementById("ph0"), document.getElementById("ph1"), document.getElementById("ph2")];
+
+  // Audio
+  let audioCtx = null;
+  function beep({type="sine", freq=660, dur=0.08, gain=0.06, sweep=null} = {}){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const t0 = audioCtx.currentTime;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t0);
+      if(sweep){ o.frequency.exponentialRampToValueAtTime(Math.max(1, sweep.to), t0 + dur); }
+      g.gain.setValueAtTime(gain, t0);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t0); o.stop(t0 + dur + 0.01);
+    }catch(e){}
+  }
+  const sfxClickOk = () => beep({type:"triangle", freq:740, dur:0.07, gain:0.06, sweep:{to:980}});
+  const sfxClickNo = () => beep({type:"square", freq:220, dur:0.08, gain:0.04, sweep:{to:160}});
+  const sfxScore   = () => { beep({type:"triangle", freq:660, dur:0.08, gain:0.06, sweep:{to:880}});
+                            setTimeout(()=>beep({type:"triangle", freq:880, dur:0.10, gain:0.06, sweep:{to:1100}}), 90); };
+  const sfxStart = () => beep({type:"triangle", freq:520, dur:0.10, gain:0.05, sweep:{to:760}});
+  const sfxEnd   = () => beep({type:"sine", freq:330, dur:0.18, gain:0.05, sweep:{to:220}});
+
+  // Lexicon
+  let verbs = [];
+  let wordIndex = new Map();
+
+  function rebuildLexicon(verbTriples){
+    verbs = verbTriples
+      .map(v => v.map(s => String(s).trim()).filter(Boolean))
+      .filter(v => v.length === 3)
+      .map(v => ({base:v[0], past:v[1], pp:v[2]}));
+
+    wordIndex = new Map();
+    verbs.forEach((v, vid) => {
+      [v.base, v.past, v.pp].forEach((w, t) => {
+        const key = w.toLowerCase();
+        if(!wordIndex.has(key)) wordIndex.set(key, []);
+        const arr = wordIndex.get(key);
+        let entry = arr.find(e => e.vid === vid);
+        if(!entry){ entry = {vid, types:[]}; arr.push(entry); }
+        if(!entry.types.includes(t)) entry.types.push(t);
+      });
+    });
+  }
+  rebuildLexicon(DEFAULT_VERBS);
+
+  // Game state
+  let running = false;
+  let rafId = null;
+  let lastTs = 0;
+
+  let spawnTimer = 0;
+  const SPAWN_EVERY = 0.85;
+  const SPEED_MIN = 60;
+  const SPEED_MAX = 120;
+
+  let blocks = [];
+  let nextId = 1;
+
+  let buffer = ["","",""];
+  let currentTargetVid = null;
+  let score = 0;
+
+  let lastNeededSpawnAt = 0;
+  const PITY_SEC = 3;
+  const NEED_PROB = 0.7;
+
+  let timeLeft = GAME_SECONDS;
+
+  // UI helpers
+  function nowMs(){ return performance.now(); }
+
+  function setHint(msg, show=true){
+    topHint.textContent = msg;
+    if(show){
+      topHint.classList.add("show");
+      clearTimeout(setHint._t);
+      setHint._t = setTimeout(()=>topHint.classList.remove("show"), 1800);
+    }else topHint.classList.remove("show");
+  }
+
+  function updateScore(){ scoreNum.textContent = String(score); }
+
+  function updateTimeUI(){
+    const t = Math.max(0, Math.ceil(timeLeft));
+    timeNum.textContent = String(t);
+    if(t <= 10) timerPill.classList.add("urgent");
+    else timerPill.classList.remove("urgent");
+  }
+
+  function renderBuffer(){
+    for(let i=0;i<3;i++){
+      wordEls[i].textContent = buffer[i] || "";
+      phEls[i].style.display = buffer[i] ? "none" : "block";
+    }
+  }
+
+  function clearBuffer(){
+    buffer = ["","",""];
+    currentTargetVid = null;
+    lastNeededSpawnAt = 0;
+    renderBuffer();
+  }
+
+  function buffersAllEmpty(){ return buffer.every(x => !x); }
+  function buffersAllFilled(){ return buffer.every(x => !!x); }
+
+  function typesForWordInVerb(word, verb){
+    const w = word.toLowerCase();
+    const types = [];
+    if(verb.base.toLowerCase() === w) types.push(0);
+    if(verb.past.toLowerCase() === w) types.push(1);
+    if(verb.pp.toLowerCase() === w)   types.push(2);
+    return types;
+  }
+
+  function choosePlaceType(types){
+    for(const t of types){ if(!buffer[t]) return t; }
+    return null;
+  }
+
+  function popSlot(t){
+    slotEls[t].classList.remove("pop");
+    void slotEls[t].offsetWidth;
+    slotEls[t].classList.add("pop");
+  }
+
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+  }
+
+  // Leaderboard
+  function loadBoard(){
+    try{ const raw = localStorage.getItem(STORAGE_KEY); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; }
+    catch{ return []; }
+  }
+  function saveBoard(arr){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }catch{} }
+
+  function qualifies(scoreNow){
+    const board = loadBoard().sort((a,b)=>b.score-a.score || (b.ts||0)-(a.ts||0));
+    if(board.length < 5) return true;
+    return scoreNow > (board[board.length-1]?.score ?? -1);
+  }
+
+  function upsertScore(name, scoreNow){
+    const entry = { name: (name||"玩家").trim() || "玩家", score: scoreNow, ts: Date.now() };
+    const board = loadBoard();
+    board.push(entry);
+    board.sort((a,b)=>b.score-a.score || (b.ts||0)-(a.ts||0));
+    const top5 = board.slice(0,5);
+    saveBoard(top5);
+    return top5;
+  }
+
+  function fmtDate(ts){
+    try{ const d = new Date(ts); const mm = String(d.getMonth()+1).padStart(2,"0"); const dd = String(d.getDate()).padStart(2,"0"); return `${mm}/${dd}`; }
+    catch{ return ""; }
+  }
+
+  function renderBoard(){
+    const board = loadBoard().sort((a,b)=>b.score-a.score || (b.ts||0)-(a.ts||0));
+    if(board.length === 0){
+      boardBody.innerHTML = `
+        <div style="font-weight:1000; font-size:18px;">還沒有紀錄耶！</div>
+        <div class="mini">快去玩一場，把你的名字放上來～</div>
+      `;
+      return;
+    }
+    const rows = board.map((e,i)=>{
+      const rankEmoji = i===0?"🥇":(i===1?"🥈":(i===2?"🥉":"✨"));
+      const rankCls = i===0?"badge1":(i===1?"badge2":(i===2?"badge3":""));
+      const safeName = String(e.name||"玩家").replace(/[<>]/g,"");
+      return `
+        <tr class="lbRow">
+          <td class="rank ${rankCls}">${rankEmoji}<div style="font-size:12px; font-weight:1000;">${i+1}</div></td>
+          <td class="nameCell">${safeName}</td>
+          <td class="scoreCell">${e.score}</td>
+          <td class="dateCell">${fmtDate(e.ts)}</td>
+        </tr>
+      `;
+    }).join("");
+
+    boardBody.innerHTML = `
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+        <div>
+          <div style="font-weight:1000; font-size:18px;">前 5 名</div>
+          <div class="mini">分數越高越厲害！</div>
+        </div>
+        <div class="mini">本局分數：<b>${score}</b>　時間：<b>${GAME_SECONDS}s</b></div>
+      </div>
+      <table class="lbTable" aria-label="高分榜"><tbody>${rows}</tbody></table>
+    `;
+  }
+
+  function openBackdrop(el){ el.classList.add("show"); }
+  function closeBackdrop(el){ el.classList.remove("show"); }
+
+  // Falling blocks
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+
+  function getMissingWordsForTarget(){
+    if(currentTargetVid === null) return [];
+    const v = verbs[currentTargetVid];
+    const missing = [];
+    if(!buffer[0]) missing.push(v.base);
+    if(!buffer[1]) missing.push(v.past);
+    if(!buffer[2]) missing.push(v.pp);
+    return missing;
+  }
+
+  function pickRandomWord(){
+    if(currentTargetVid === null){
+      const vid = Math.floor(Math.random()*verbs.length);
+      const v = verbs[vid];
+      const forms = [v.base, v.past, v.pp];
+      return forms[Math.floor(Math.random()*3)];
+    }
+
+    const missing = getMissingWordsForTarget();
+    const tNow = nowMs();
+    if(!lastNeededSpawnAt) lastNeededSpawnAt = tNow;
+
+    if(missing.length && (tNow - lastNeededSpawnAt) >= PITY_SEC*1000){
+      const w = missing[Math.floor(Math.random()*missing.length)];
+      lastNeededSpawnAt = tNow;
+      return w;
+    }
+
+    if(missing.length && Math.random() < NEED_PROB){
+      const w = missing[Math.floor(Math.random()*missing.length)];
+      lastNeededSpawnAt = tNow;
+      return w;
+    }
+
+    const vid = Math.floor(Math.random()*verbs.length);
+    const v = verbs[vid];
+    const forms = [v.base, v.past, v.pp];
+    return forms[Math.floor(Math.random()*3)];
+  }
+
+  function createBlock(text){
+    const el = document.createElement("div");
+    el.className = "block";
+    el.textContent = text;
+
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = ["⭐","🍬","🌈","🧸","✨"][Math.floor(Math.random()*5)];
+    el.appendChild(tag);
+
+    const rect = stage.getBoundingClientRect();
+    stage.appendChild(el);
+
+    const w = el.offsetWidth || 80;
+    const x = Math.max(8, Math.min(rect.width - w - 8, rand(8, rect.width - w - 8)));
+    const y = -70;
+    const speed = rand(SPEED_MIN, SPEED_MAX);
+
+    const id = nextId++;
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+
+    const b = {id, el, x, y, speed, text};
+    el.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); handleClickBlock(b); });
+    blocks.push(b);
+  }
+
+  function removeBlock(b){
+    const idx = blocks.findIndex(x => x.id === b.id);
+    if(idx >= 0) blocks.splice(idx,1);
+    if(b.el && b.el.parentNode) b.el.parentNode.removeChild(b.el);
+  }
+
+  function updateBlocks(dt){
+    const h = stage.clientHeight;
+    for(let i=blocks.length-1;i>=0;i--){
+      const b = blocks[i];
+      b.y += b.speed * dt;
+      b.el.style.top = b.y + "px";
+      if(b.y > h + 40) removeBlock(b);
+    }
+  }
+
+  // Click rules
+  function flashWrongThenRemove(b){ b.el.classList.add("flash-wrong"); setTimeout(() => removeBlock(b), 260); }
+
+  function finishSet(){
+    score += 1;
+    updateScore();
+    sfxScore();
+    slotEls.forEach(s => s.classList.add("glow"));
+    showToast("Perfect! +1 ⭐");
+    setTimeout(()=>slotEls.forEach(s => s.classList.remove("glow")), 600);
+    clearBuffer();
+  }
+
+  function handleClickBlock(b){
+    if(!running) return;
+    const word = b.text;
+    const key = word.toLowerCase();
+
+    if(!wordIndex.has(key)){
+      flashWrongThenRemove(b);
+      return;
+    }
+
+    if(buffersAllEmpty()){
+      const candidates = wordIndex.get(key);
+      const chosen = candidates[Math.floor(Math.random()*candidates.length)];
+      currentTargetVid = chosen.vid;
+      lastNeededSpawnAt = nowMs();
+
+      const v = verbs[currentTargetVid];
+      const types = typesForWordInVerb(word, v);
+      const t = choosePlaceType(types);
+      if(t === null){ b.el.classList.add("wiggle"); sfxClickNo(); return; }
+      buffer[t] = word;
+      renderBuffer();
+      popSlot(t);
+      sfxClickOk();
+      removeBlock(b);
+      if(buffersAllFilled()) finishSet();
+      return;
+    }
+
+    const targetVerb = verbs[currentTargetVid];
+    const typesInTarget = typesForWordInVerb(word, targetVerb);
+
+    if(typesInTarget.length === 0){ flashWrongThenRemove(b); sfxClickNo(); return; }
+
+    const t = choosePlaceType(typesInTarget);
+    if(t === null){ b.el.classList.remove("wiggle"); void b.el.offsetWidth; b.el.classList.add("wiggle"); sfxClickNo(); return; }
+
+    buffer[t] = word;
+    renderBuffer();
+    popSlot(t);
+    sfxClickOk();
+    removeBlock(b);
+    if(buffersAllFilled()) finishSet();
+  }
+
+  // Loop
+  function loop(ts){
+    if(!running) return;
+    const t = ts/1000;
+    const dt = Math.min(0.05, t - lastTs);
+    lastTs = t;
+
+    timeLeft -= dt;
+    updateTimeUI();
+    if(timeLeft <= 0){ endGame(); return; }
+
+    spawnTimer += dt;
+    if(spawnTimer >= SPAWN_EVERY){ spawnTimer = 0; createBlock(pickRandomWord()); }
+
+    updateBlocks(dt);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function clearBlocks(){ blocks.forEach(b => b.el?.parentNode?.removeChild(b.el)); blocks = []; }
+
+  function startGame(){
+    if(running) return;
+    if(timeLeft <= 0) resetGame(true);
+    running = true;
+    btnStart.disabled = true;
+    btnPause.disabled = false;
+    setHint("開始囉！90 秒衝刺～", true);
+    sfxStart();
+    lastTs = performance.now()/1000;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function pauseGame(){
+    if(!running) return;
+    running = false;
+    btnStart.disabled = false;
+    btnPause.disabled = true;
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    setHint("已暫停～按『開始』繼續！", true);
+  }
+
+  function resetGame(keepBoard=false){
+    pauseGame();
+    clearBlocks();
+    spawnTimer = 0;
+    clearBuffer();
+    score = 0;
+    updateScore();
+    timeLeft = GAME_SECONDS;
+    updateTimeUI();
+    if(!keepBoard) renderBoard();
+    setHint("重置完成！按『開始』再玩一次～", true);
+  }
+
+  function endGame(){
+    if(!running && timeLeft <= 0) return;
+    running = false;
+    btnStart.disabled = false;
+    btnPause.disabled = true;
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+
+    timeLeft = 0;
+    updateTimeUI();
+    clearBlocks();
+    clearBuffer();
+
+    setHint(`時間到！本局 ${score} 分～`, true);
+    sfxEnd();
+
+    finalScorePreview.textContent = String(score);
+    if(qualifies(score)){
+      nameInput.value = "";
+      openBackdrop(nameBackdrop);
+      setTimeout(()=>nameInput.focus(), 50);
+    }else{
+      renderBoard();
+      openBackdrop(boardBackdrop);
+    }
+  }
+
+  // Import
+  function parseVerbFile(text){
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const triples = [];
+    for(const line of lines){
+      const parts = line.split(",").map(s => s.trim()).filter(Boolean);
+      if(parts.length !== 3) continue;
+      triples.push(parts);
+    }
+    return triples;
+  }
+
+  fileInput.addEventListener("change", async () => {
+    const f = fileInput.files && fileInput.files[0];
+    if(!f) return;
+    try{
+      const text = await f.text();
+      const triples = parseVerbFile(text);
+      if(triples.length < 1){ setHint("題庫格式好像不對耶～每行要有 3 個，用逗號分隔！", true); sfxClickNo(); return; }
+      rebuildLexicon(triples);
+      resetGame(true);
+      setHint(`題庫匯入成功！共有 ${verbs.length} 個動詞～`, true);
+      sfxClickOk();
+    }finally{ fileInput.value = ""; }
+  });
+
+  // Modals
+  btnHelp.addEventListener("click", () => openBackdrop(helpBackdrop));
+  btnCloseHelp.addEventListener("click", () => closeBackdrop(helpBackdrop));
+  helpBackdrop.addEventListener("click", (e) => { if(e.target === helpBackdrop) closeBackdrop(helpBackdrop); });
+
+  btnBoard.addEventListener("click", () => { renderBoard(); openBackdrop(boardBackdrop); });
+  btnCloseBoard.addEventListener("click", () => closeBackdrop(boardBackdrop));
+  boardBackdrop.addEventListener("click", (e) => { if(e.target === boardBackdrop) closeBackdrop(boardBackdrop); });
+
+  btnClearBoard.addEventListener("click", () => { saveBoard([]); renderBoard(); setHint("高分榜已清空！", true); });
+
+  btnSaveName.addEventListener("click", () => {
+    const name = (nameInput.value || "").trim().slice(0,10);
+    upsertScore(name || "玩家", score);
+    closeBackdrop(nameBackdrop);
+    renderBoard();
+    openBackdrop(boardBackdrop);
+  });
+
+  btnSkipName.addEventListener("click", () => {
+    closeBackdrop(nameBackdrop);
+    renderBoard();
+    openBackdrop(boardBackdrop);
+  });
+
+  nameBackdrop.addEventListener("click", (e) => { if(e.target === nameBackdrop) closeBackdrop(nameBackdrop); });
+  nameInput.addEventListener("keydown", (e) => { if(e.key === "Enter") btnSaveName.click(); });
+
+  // Buttons
+  btnStart.addEventListener("click", startGame);
+  btnPause.addEventListener("click", pauseGame);
+  btnReset.addEventListener("click", () => resetGame(true));
+
+  // Init
+  renderBuffer();
+  updateScore();
+  updateTimeUI();
+  renderBoard();
+  setTimeout(()=>setHint("按『開始』！90 秒內把分數衝高～", true), 250);
+})();
+</script>
+</body>
+</html>
