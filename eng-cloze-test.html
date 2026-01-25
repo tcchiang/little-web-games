@@ -285,7 +285,7 @@
             </div>
           </div>
           <div class="muted" style="margin-top:10px">
-            檔案格式：每題包含「題目句子」一行，下一行是四個選項以逗號分隔；正確答案前面加 <span class="kbd">*</span>。
+            檔案格式：每題包含「題目句子」一行，下一行是 <b>3～4</b> 個選項以逗號分隔；正確答案前面加 <span class="kbd">*</span>。
           </div>
         </div>
 
@@ -371,6 +371,7 @@
 <script>
   // 可愛英文填空小測驗（進階版）
   // ✅ 隨機出題 ✅ 打亂選項 ✅ 倒數計時 ✅ 每題音效 ✅ 小動畫 ✅ 連對 ✅ 完成畫面
+  // ✅ 支援 3 或 4 個選項（3 選 1 / 4 選 1）
 
   const $ = (sel) => document.querySelector(sel);
 
@@ -458,6 +459,11 @@ happy, *happily, happier, happiest
 
 She is a _____ dancer.
 *good, well, better, best
+
+6.
+
+(3-choice demo) Yesterday, Tom _____ to school.
+*went, goes, will go
 `;
 
   // --- parsing helpers ---
@@ -498,8 +504,11 @@ She is a _____ dancer.
 
       if(aLine.includes(',')){
         const parts = aLine.split(',').map(p => p.trim()).filter(Boolean);
-        if(parts.length >= 4){
-          const options = parts.slice(0, 4).map(p => {
+        // ✅ 支援 3 或 4 選
+        if(parts.length >= 3){
+          const takeN = parts.length >= 4 ? 4 : 3;
+          const picked = parts.slice(0, takeN);
+          const options = picked.map(p => {
             const isCorrect = p.startsWith('*');
             return { label: isCorrect ? p.slice(1).trim() : p, isCorrect };
           });
@@ -552,6 +561,21 @@ She is a _____ dancer.
       .replaceAll('>','&gt;')
       .replaceAll('"','&quot;')
       .replaceAll("'",'&#039;');
+  }
+
+  function lettersFor(n){
+    const base = ['A','B','C','D'];
+    return base.slice(0, Math.max(0, Math.min(4, n)));
+  }
+
+  function setChoicesLayout(n){
+    // 3/4 選：兩欄；2 選：一欄；1 選：一欄
+    if(!choicesEl) return;
+    if(n <= 2){
+      choicesEl.style.gridTemplateColumns = '1fr';
+    }else{
+      choicesEl.style.gridTemplateColumns = '1fr 1fr';
+    }
   }
 
   // ---------- Audio ----------
@@ -682,7 +706,8 @@ She is a _____ dancer.
 
   function renderChoicesLocked(){
     const q = questions[idx];
-    const letters = ['A','B','C','D'];
+    const letters = lettersFor(q.options.length);
+    setChoicesLayout(q.options.length);
     choicesEl.innerHTML = '';
 
     q.options.forEach((opt, k) => {
@@ -690,7 +715,7 @@ She is a _____ dancer.
       btn.className = 'choice';
       btn.type = 'button';
       btn.disabled = true;
-      btn.innerHTML = `<span class="badge">${letters[k]}</span><span>${escapeHtml(opt.label)}</span>`;
+      btn.innerHTML = `<span class="badge">${letters[k] ?? ''}</span><span>${escapeHtml(opt.label)}</span>`;
 
       const ans = answered[idx];
       if(k === q.correctIndex) btn.classList.add('correct');
@@ -719,14 +744,15 @@ She is a _____ dancer.
     void qText.offsetWidth;
     qText.classList.add('pop');
 
-    const letters = ['A','B','C','D'];
+    const letters = lettersFor(q.options.length);
+    setChoicesLayout(q.options.length);
     choicesEl.innerHTML = '';
 
     q.options.forEach((opt, k) => {
       const btn = document.createElement('button');
       btn.className = 'choice';
       btn.type = 'button';
-      btn.innerHTML = `<span class="badge">${letters[k]}</span><span>${escapeHtml(opt.label)}</span>`;
+      btn.innerHTML = `<span class="badge">${letters[k] ?? ''}</span><span>${escapeHtml(opt.label)}</span>`;
 
       const ans = answered[idx];
       if(ans){
@@ -832,7 +858,7 @@ She is a _____ dancer.
         '',
         '請檢查文字檔格式：',
         '- 題目一行',
-        '- 下一行四個選項用逗號分隔',
+        '- 下一行 3～4 個選項用逗號分隔',
         '- 正確答案前加 *',
       ].join('\n'));
       return;
@@ -849,7 +875,7 @@ She is a _____ dancer.
       {
         name: 'DEMO_TEXT basic',
         input: DEMO_TEXT,
-        expectMin: 5,
+        expectMin: 6,
       },
       {
         name: 'Windows CRLF + BOM',
@@ -865,6 +891,11 @@ She is a _____ dancer.
         name: 'Numbering lines are ignored',
         input: '1.\n\nTom runs _____.\n*faster, more fast, fastly, more faster\n\n2)\nShe speaks _____.\n*more slowly, slowlier, slowerly, slowest\n',
         expectMin: 2,
+      },
+      {
+        name: '3-choice is supported',
+        input: 'Yesterday, Tom _____ to school.\n*went, goes, will go\n',
+        expectMin: 1,
       },
     ];
 
