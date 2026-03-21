@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>可愛英文填空小測驗</title>
+  <title>可愛英文填空小測驗 v5</title>
   <style>
     :root{
       --bg:#fff7fb;
@@ -14,6 +14,7 @@
       --accent2:#7cddff;
       --good:#16a34a;
       --bad:#ef4444;
+      --warn:#f59e0b;
       --shadow: 0 10px 30px rgba(0,0,0,.08);
       --radius: 22px;
       --border: 2px solid rgba(255,111,177,.25);
@@ -32,204 +33,80 @@
       min-height:100vh;
       padding:24px 14px 60px;
     }
-    .wrap{max-width:980px;margin:0 auto}
-
-    header{
-      display:flex;
-      gap:14px;
-      align-items:flex-start;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      margin-bottom:18px;
-    }
+    .wrap{max-width:1080px;margin:0 auto}
+    header{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px;}
     .title{display:flex;gap:12px;align-items:center}
-    .logo{
-      width:54px;height:54px;border-radius:16px;
-      background: linear-gradient(135deg, rgba(255,111,177,.95), rgba(124,221,255,.9));
-      box-shadow: var(--shadow);
-      position:relative;
-      border:2px solid rgba(255,255,255,.65);
-    }
+    .logo{width:54px;height:54px;border-radius:16px;background: linear-gradient(135deg, rgba(255,111,177,.95), rgba(124,221,255,.9));box-shadow: var(--shadow);position:relative;border:2px solid rgba(255,255,255,.65);}
     .logo:before,.logo:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.9);top:18px;width:9px;height:9px;}
-    .logo:before{left:16px}
-    .logo:after{right:16px}
+    .logo:before{left:16px}.logo:after{right:16px}
     .logo i{position:absolute;left:50%;top:34px;transform:translateX(-50%);width:18px;height:8px;border:2px solid rgba(255,255,255,.95);border-top:0;border-radius:0 0 14px 14px;}
-
     h1{margin:0;font-size:clamp(20px, 3.6vw, 30px);line-height:1.15}
     .subtitle{margin:4px 0 0;color:var(--muted);font-size:14px}
-
     .pillbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .pill{
-      background:rgba(255,255,255,.75);
-      border:1px solid rgba(0,0,0,.06);
-      padding:10px 12px;
-      border-radius:999px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.06);
-      display:flex;gap:10px;align-items:center;
-      font-size:14px;
-    }
+    .pill{background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.06);padding:10px 12px;border-radius:999px;box-shadow: 0 6px 16px rgba(0,0,0,.06);display:flex;gap:10px;align-items:center;font-size:14px;}
     .pill b{font-variant-numeric: tabular-nums}
-
-    .grid{display:grid;grid-template-columns: 1.3fr .7fr;gap:16px;}
+    .grid{display:grid;grid-template-columns: 1.35fr .65fr;gap:16px;}
     @media (max-width:860px){.grid{grid-template-columns:1fr}}
-
-    .card{
-      background:rgba(255,255,255,.92);
-      border-radius:var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(0,0,0,.06);
-      overflow:hidden;
-    }
-    .card .hd{
-      padding:16px 18px;
-      border-bottom:1px dashed rgba(255,111,177,.35);
-      background: linear-gradient(90deg, rgba(255,111,177,.12), rgba(124,221,255,.12));
-    }
+    .card{background:rgba(255,255,255,.92);border-radius:var(--radius);box-shadow: var(--shadow);border: 1px solid rgba(0,0,0,.06);overflow:hidden;}
+    .card .hd{padding:16px 18px;border-bottom:1px dashed rgba(255,111,177,.35);background: linear-gradient(90deg, rgba(255,111,177,.12), rgba(124,221,255,.12));}
     .card .bd{padding:18px}
-
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-
-    .btn{
-      appearance:none;border:0;cursor:pointer;
-      padding:11px 14px;border-radius:14px;
-      background: linear-gradient(135deg, rgba(255,111,177,.95), rgba(255,153,98,.92));
-      color:white;font-weight:700;
-      box-shadow: 0 10px 18px rgba(255,111,177,.25);
-      transition: transform .08s ease, filter .2s ease;
-    }
-    .btn:hover{filter:brightness(1.03)}
-    .btn:active{transform: translateY(1px)}
-
-    .btn2{
-      appearance:none;border:0;cursor:pointer;
-      padding:11px 14px;border-radius:14px;
-      background: rgba(124,221,255,.55);
-      color:#0b3a4a;font-weight:700;
-      box-shadow: 0 10px 18px rgba(124,221,255,.18);
-    }
-
+    .btn,.btn2,.btn3{appearance:none;border:0;cursor:pointer;padding:11px 14px;border-radius:14px;font-weight:700;transition: transform .08s ease, filter .2s ease;}
+    .btn{background: linear-gradient(135deg, rgba(255,111,177,.95), rgba(255,153,98,.92));color:white;box-shadow: 0 10px 18px rgba(255,111,177,.25);}
+    .btn2{background: rgba(124,221,255,.55);color:#0b3a4a;box-shadow: 0 10px 18px rgba(124,221,255,.18);}
+    .btn3{background: rgba(245,158,11,.16);color:#8a5200;box-shadow: 0 10px 18px rgba(245,158,11,.12);}
+    .btn:hover,.btn2:hover,.btn3:hover{filter:brightness(1.03)}
+    .btn:active,.btn2:active,.btn3:active{transform: translateY(1px)}
     .file{padding:10px 12px;border-radius:14px;border: 2px dashed rgba(255,111,177,.38);background: rgba(255,255,255,.7);}
-
     .qno{font-weight:800;color:#ff4c9a}
-    .qtext{
-      margin-top:10px;
-      padding:14px 14px;
-      border: var(--border);
-      background: rgba(255,247,251,.8);
-      border-radius: 18px;
-      font-size:18px;
-      line-height:1.45;
-    }
-
+    .qtext{margin-top:10px;padding:14px 14px;border: var(--border);background: rgba(255,247,251,.8);border-radius: 18px;font-size:18px;line-height:1.45;}
     .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
     @media (max-width:520px){.choices{grid-template-columns:1fr}}
-
-    .choice{
-      width:100%;
-      text-align:left;
-      padding:12px 12px;
-      border-radius:16px;
-      border: 1px solid rgba(0,0,0,.08);
-      background: rgba(255,255,255,.88);
-      cursor:pointer;
-      font-weight:700;
-      display:flex;gap:10px;align-items:center;
-      transition: transform .06s ease, background .2s ease, border-color .2s ease;
-    }
+    .choice{width:100%;text-align:left;padding:12px 12px;border-radius:16px;border: 1px solid rgba(0,0,0,.08);background: rgba(255,255,255,.88);cursor:pointer;font-weight:700;display:flex;gap:10px;align-items:center;transition: transform .06s ease, background .2s ease, border-color .2s ease;}
     .choice:hover{transform: translateY(-1px);border-color: rgba(255,111,177,.5)}
     .badge{width:30px;height:30px;border-radius:12px;display:grid;place-items:center;background: rgba(255,111,177,.16);color:#ff4c9a;font-weight:900;border:1px solid rgba(255,111,177,.25);flex:0 0 auto;}
-
-    .choice[disabled]{cursor:not-allowed;opacity:.85}
+    .choice[disabled]{cursor:not-allowed;opacity:.88}
     .choice.correct{border-color: rgba(22,163,74,.5); background: rgba(22,163,74,.10)}
     .choice.wrong{border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.10)}
-
-    /* cute animations */
     @keyframes pop { 0%{transform:scale(.98)} 60%{transform:scale(1.02)} 100%{transform:scale(1)} }
     @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
     @keyframes glow { 0%{box-shadow: var(--shadow)} 50%{box-shadow: 0 14px 40px rgba(255,111,177,.20)} 100%{box-shadow: var(--shadow)} }
-    .pop{animation: pop .22s ease}
-    .shake{animation: shake .28s ease}
-    .glow{animation: glow .6s ease}
-
+    .pop{animation: pop .22s ease}.shake{animation: shake .28s ease}.glow{animation: glow .6s ease}
     .feedback{margin-top:12px;padding:12px 14px;border-radius:16px;border:1px solid rgba(0,0,0,.08);background: rgba(255,255,255,.85);display:flex;align-items:center;gap:10px;min-height:46px;}
     .dot{width:12px;height:12px;border-radius:50%;background: rgba(107,114,128,.5);box-shadow: 0 0 0 6px rgba(107,114,128,.14);}
     .dot.good{background: rgba(22,163,74,.95); box-shadow:0 0 0 6px rgba(22,163,74,.14)}
     .dot.bad{background: rgba(239,68,68,.95); box-shadow:0 0 0 6px rgba(239,68,68,.14)}
-
+    .dot.warn{background: rgba(245,158,11,.95); box-shadow:0 0 0 6px rgba(245,158,11,.14)}
     .muted{color:var(--muted);font-size:13px;line-height:1.45}
-
     .side .bd{padding:16px}
     .stat{display:grid;gap:10px;grid-template-columns: 1fr 1fr;}
     .box{padding:12px 12px;border-radius:18px;background: rgba(255,247,251,.85);border: 1px solid rgba(255,111,177,.22);}
     .box b{display:block;font-size:20px;font-variant-numeric: tabular-nums}
     .box span{color:var(--muted);font-size:12px}
-
     .progress{height:14px;border-radius:999px;background: rgba(0,0,0,.06);overflow:hidden;border:1px solid rgba(0,0,0,.06);}
     .bar{height:100%;width:0%;background: linear-gradient(90deg, rgba(255,111,177,.95), rgba(124,221,255,.92));transition: width .25s ease;}
-
     .tiny{font-size:12px;color:var(--muted)}
-
     .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:12px;padding:2px 6px;border-radius:8px;background: rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.08);}
-
     footer{margin-top:16px;color:var(--muted);font-size:12px;text-align:center}
-
-    /* finish overlay */
-    .overlay{
-      position:fixed; inset:0;
-      background: rgba(31,41,55,.35);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index: 50;
-      backdrop-filter: blur(2px);
-    }
+    .overlay{position:fixed; inset:0; background: rgba(31,41,55,.35); display:none; align-items:center; justify-content:center; padding:18px; z-index: 50; backdrop-filter: blur(2px);}
     .overlay.show{display:flex}
-    .modal{
-      width:min(560px, 100%);
-      border-radius: 26px;
-      background: rgba(255,255,255,.94);
-      box-shadow: 0 18px 50px rgba(0,0,0,.20);
-      border: 1px solid rgba(0,0,0,.08);
-      overflow:hidden;
-      transform: translateY(6px);
-      animation: pop .22s ease;
-      position:relative;
-    }
-    .modal .mh{
-      padding:16px 18px;
-      background: linear-gradient(90deg, rgba(255,111,177,.16), rgba(124,221,255,.16));
-      border-bottom:1px dashed rgba(255,111,177,.35);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
+    .modal{width:min(720px, 100%); border-radius: 26px; background: rgba(255,255,255,.94); box-shadow: 0 18px 50px rgba(0,0,0,.20); border: 1px solid rgba(0,0,0,.08); overflow:hidden; transform: translateY(6px); animation: pop .22s ease; position:relative;}
+    .modal .mh{padding:16px 18px; background: linear-gradient(90deg, rgba(255,111,177,.16), rgba(124,221,255,.16)); border-bottom:1px dashed rgba(255,111,177,.35); display:flex; align-items:center; justify-content:space-between; gap:10px;}
     .modal .mb{padding:18px}
-    .stars{font-size:26px; letter-spacing:2px}
-    .big{font-size:22px; font-weight:900; margin:4px 0 0}
-    .sub{color:var(--muted); margin-top:6px; line-height:1.5}
+    .stars{font-size:26px; letter-spacing:2px}.big{font-size:22px; font-weight:900; margin:4px 0 0}.sub{color:var(--muted); margin-top:6px; line-height:1.5}
     .modal .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px}
-    .chip{
-      border-radius:18px;
-      background: rgba(255,247,251,.90);
-      border: 1px solid rgba(255,111,177,.22);
-      padding:12px 12px;
-    }
-    .chip b{display:block; font-size:20px; font-variant-numeric: tabular-nums}
-    .chip span{color:var(--muted); font-size:12px}
-
-    .emojiRain{
-      position:absolute; inset:0; pointer-events:none; overflow:hidden;
-    }
-    .emoji{
-      position:absolute;
-      top:-20px;
-      font-size:22px;
-      opacity:.95;
-      animation: fall 1.6s linear forwards;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
-    }
-    @keyframes fall{
-      to{ transform: translateY(calc(100vh + 60px)) rotate(210deg); opacity:.98; }
-    }
+    .chip{border-radius:18px;background: rgba(255,247,251,.90);border: 1px solid rgba(255,111,177,.22);padding:12px 12px;}
+    .chip b{display:block; font-size:20px; font-variant-numeric: tabular-nums}.chip span{color:var(--muted); font-size:12px}
+    .emojiRain{position:absolute; inset:0; pointer-events:none; overflow:hidden;}
+    .emoji{position:absolute;top:-20px;font-size:22px;opacity:.95;animation: fall 1.6s linear forwards;filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));}
+    @keyframes fall{to{ transform: translateY(calc(100vh + 60px)) rotate(210deg); opacity:.98; }}
+    .reviewList{display:grid;gap:10px;margin-top:14px;max-height:50vh;overflow:auto;padding-right:4px}
+    .reviewItem{padding:12px 12px;border-radius:18px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.88)}
+    .reviewHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+    .reviewTag{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800}.tagWrong{background:rgba(239,68,68,.12);color:#b91c1c}.tagTimeout{background:rgba(245,158,11,.14);color:#9a5b00}
+    .reviewQ{margin-top:8px;font-weight:800;color:#d63384}.reviewMeta{margin-top:8px;font-size:14px;line-height:1.6}.reviewMeta b{display:inline-block;min-width:64px}
+    .reviewEmpty{padding:14px;border-radius:18px;background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.18)}
+    .hintBox{margin-top:12px;padding:12px;border-radius:16px;background:rgba(124,221,255,.12);border:1px solid rgba(124,221,255,.28)}
   </style>
 </head>
 <body>
@@ -238,14 +115,15 @@
       <div class="title">
         <div class="logo" aria-hidden="true"><i></i></div>
         <div>
-          <h1>可愛英文填空小測驗</h1>
-          <div class="subtitle">讀取文字檔 → 逐題作答 → 立即記分 ✨</div>
+          <h1>可愛英文填空小測驗 v5</h1>
+          <div class="subtitle">讀取文字檔 → 可自訂題數 → 完成後可回看錯題與正解 ✨</div>
         </div>
       </div>
       <div class="pillbar">
         <div class="pill">⏳ 倒數 <b id="pillTimer">--</b></div>
         <div class="pill">🌟 進度 <b id="pillProgress">0/0</b></div>
         <div class="pill">✅ 答對 <b id="pillCorrect">0</b></div>
+        <div class="pill">❌ 錯題 <b id="pillWrong">0</b></div>
         <div class="pill">🔥 連對 <b id="pillCombo">0</b>｜🏆 最高 <b id="pillMaxCombo">0</b></div>
         <div class="pill">🧸 小提醒：按 <span class="kbd">N</span> 下一題</div>
       </div>
@@ -256,53 +134,32 @@
         <div class="hd">
           <div class="row" style="justify-content:space-between">
             <div class="row">
-              <label class="file">
-                📄 載入題目檔：
-                <input id="fileInput" type="file" accept=".txt" />
-              </label>
+              <label class="file">📄 載入題目檔： <input id="fileInput" type="file" accept=".txt" /></label>
               <button class="btn2" id="demoBtn" title="載入內建示範題目">載入示範</button>
-              <label class="file" title="每題倒數秒數">
-                ⏱️ 每題
-                <select id="timeSelect">
-                  <option value="10">10 秒</option>
-                  <option value="15" selected>15 秒</option>
-                  <option value="20">20 秒</option>
-                  <option value="30">30 秒</option>
-                  <option value="0">不計時</option>
-                </select>
-              </label>
-              <label class="file" title="音效開關">
-                🔊 音效
-                <input id="soundToggle" type="checkbox" checked />
-              </label>
-              <label class="file" title="自動跳到下一題">
-                ➡️ 自動下一題
-                <input id="autoNextToggle" type="checkbox" checked />
-              </label>
+              <label class="file" title="自訂本次測驗題數；留空或 0 代表使用全部題目">🔢 題數 <input id="questionCountInput" type="number" min="0" step="1" placeholder="全部" style="width:88px" /></label>
+              <label class="file" title="每題倒數秒數">⏱️ 每題 <select id="timeSelect"><option value="10">10 秒</option><option value="15" selected>15 秒</option><option value="20">20 秒</option><option value="30">30 秒</option><option value="0">不計時</option></select></label>
+              <label class="file" title="音效開關">🔊 音效 <input id="soundToggle" type="checkbox" checked /></label>
+              <label class="file" title="自動跳到下一題">➡️ 自動下一題 <input id="autoNextToggle" type="checkbox" checked /></label>
             </div>
             <div class="row">
+              <button class="btn3" id="reviewWrongBtn" disabled>📝 回看錯題</button>
               <button class="btn" id="restartBtn" disabled>重新開始</button>
             </div>
           </div>
           <div class="muted" style="margin-top:10px">
-            檔案格式：每題包含「題目句子」一行，下一行是 <b>3～4</b> 個選項以逗號分隔；正確答案前面加 <span class="kbd">*</span>。
+            檔案格式：每題包含「題目句子」一行，下一行是 <b>3～4</b> 個選項以逗號分隔；正確答案前面加 <span class="kbd">*</span>。<br>
+            題數欄位可自訂本次測驗題數；若小於題庫題數會隨機抽題，若大於題庫題數則自動使用全部題目。
           </div>
         </div>
 
         <div class="bd">
           <div class="qno" id="qNo">尚未載入題目</div>
           <div class="qtext" id="qText">請先選擇一個 .txt 題目檔，或按「載入示範」。</div>
-
           <div class="choices" id="choices"></div>
-
-          <div class="feedback" id="feedback">
-            <div class="dot" id="dot"></div>
-            <div id="fbText" class="muted">準備好了就開始吧！</div>
-          </div>
-
+          <div class="feedback" id="feedback"><div class="dot" id="dot"></div><div id="fbText" class="muted">準備好了就開始吧！</div></div>
           <div class="row" style="margin-top:14px;justify-content:space-between">
             <button class="btn2" id="prevBtn" disabled>⬅️ 上一題</button>
-            <button class="btn" id="nextBtn" disabled>下一題 ➡️</button>
+            <div class="row"><button class="btn3" id="jumpWrongBtn" disabled>跳到下一個錯題</button><button class="btn" id="nextBtn" disabled>下一題 ➡️</button></div>
           </div>
         </div>
       </section>
@@ -314,98 +171,83 @@
             <div class="box"><b id="statTotal">0</b><span>總題數</span></div>
             <div class="box"><b id="statAnswered">0</b><span>已作答</span></div>
             <div class="box"><b id="statCorrect">0</b><span>答對</span></div>
+            <div class="box"><b id="statWrong">0</b><span>錯題數</span></div>
             <div class="box"><b id="statAcc">0%</b><span>正確率</span></div>
+            <div class="box"><b id="statReview">0</b><span>待複習</span></div>
             <div class="box" style="grid-column: 1 / -1;"><b id="statTime">--</b><span>本題剩餘時間</span></div>
           </div>
-
-          <div style="margin-top:14px">
-            <div class="tiny" style="margin-bottom:6px">進度條</div>
-            <div class="progress" aria-label="progress"><div class="bar" id="bar"></div></div>
-          </div>
-
-          <div style="margin-top:14px" class="muted">
-            💡 小學者提示：
-            <ul style="margin:8px 0 0 18px; padding:0">
-              <li>看句子：<b>動作</b> → 常用副詞；<b>看起來/感覺</b> → 常用形容詞。</li>
-              <li>答完會顯示 ✅/❌，再按「下一題」就好。</li>
-              <li>鍵盤快速鍵：<span class="kbd">N</span> 下一題、<span class="kbd">P</span> 上一題。</li>
-            </ul>
-          </div>
+          <div style="margin-top:14px"><div class="tiny" style="margin-bottom:6px">進度條</div><div class="progress" aria-label="progress"><div class="bar" id="bar"></div></div></div>
+          <div class="hintBox" id="reviewHint"><b>複習模式說明</b><div class="muted" style="margin-top:6px">全部答完後，可按「回看錯題」，系統會列出每一題的你的答案、正確答案與題目內容。</div></div>
+          <div style="margin-top:14px" class="muted">💡 小學者提示：<ul style="margin:8px 0 0 18px; padding:0"><li>看句子：<b>動作</b> → 常用副詞；<b>看起來/感覺</b> → 常用形容詞。</li><li>答完會顯示 ✅/❌，再按「下一題」就好。</li><li>鍵盤快速鍵：<span class="kbd">N</span> 下一題、<span class="kbd">P</span> 上一題、<span class="kbd">R</span> 錯題複習。</li></ul></div>
         </div>
       </aside>
     </div>
 
-    <footer>
-      Made with 🌈 for young learners · 支援離線使用（存成 .html 直接開）
-    </footer>
+    <footer>Made with 🌈 for young learners · 支援離線使用（存成 .html 直接開）</footer>
 
-    <!-- 完成畫面（遊戲感 ✨） -->
     <div class="overlay" id="finishOverlay" role="dialog" aria-modal="true" aria-label="完成畫面">
       <div class="modal">
         <div class="emojiRain" id="emojiRain" aria-hidden="true"></div>
-        <div class="mh">
-          <div>
-            <div class="stars" id="finishStars">⭐⭐⭐</div>
-            <div class="big" id="finishTitle">任務完成！</div>
-          </div>
-          <button class="btn2" id="finishCloseBtn" title="關閉">✖</button>
-        </div>
+        <div class="mh"><div><div class="stars" id="finishStars">⭐⭐⭐</div><div class="big" id="finishTitle">任務完成！</div></div><button class="btn2" id="finishCloseBtn" title="關閉">✖</button></div>
         <div class="mb">
           <div class="sub" id="finishMsg">太棒了！你完成了全部題目～</div>
           <div class="grid2">
             <div class="chip"><b id="finishScore">0/0</b><span>答對 / 總題數</span></div>
             <div class="chip"><b id="finishAcc">0%</b><span>正確率</span></div>
+            <div class="chip"><b id="finishWrongCount">0</b><span>錯題數</span></div>
             <div class="chip"><b id="finishMaxCombo">0</b><span>最高連對</span></div>
             <div class="chip"><b id="finishTimeMode">--</b><span>計時模式</span></div>
+            <div class="chip"><b id="finishReviewCount">0</b><span>可複習題目</span></div>
           </div>
-          <div class="row" style="margin-top:14px;justify-content:space-between">
-            <button class="btn2" id="finishReviewBtn">🔎 看結果</button>
-            <button class="btn" id="finishPlayBtn">🔄 再挑戰一次</button>
-          </div>
-          <div class="muted" style="margin-top:10px">提示：再挑戰一次會重新洗牌題目與選項喔！</div>
+          <div class="row" style="margin-top:14px;justify-content:space-between"><button class="btn3" id="finishReviewBtn">🔎 看錯題與答案</button><button class="btn" id="finishPlayBtn">🔄 再挑戰一次</button></div>
+          <div class="muted" style="margin-top:10px">提示：再挑戰一次會重新抽題、洗牌題目與選項喔！</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="reviewOverlay" role="dialog" aria-modal="true" aria-label="錯題複習">
+      <div class="modal">
+        <div class="mh"><div><div class="big">📝 錯題複習</div><div class="sub" id="reviewSummary">以下是本次需要再看一次的題目。</div></div><button class="btn2" id="reviewCloseBtn" title="關閉">✖</button></div>
+        <div class="mb">
+          <div class="reviewList" id="reviewList"></div>
+          <div class="row" style="margin-top:14px;justify-content:space-between"><button class="btn2" id="reviewGoFirstBtn">📍 跳到第一題錯題</button><button class="btn" id="reviewRestartBtn">🔄 再練一次</button></div>
         </div>
       </div>
     </div>
   </div>
 
 <script>
-  // 可愛英文填空小測驗（進階版）
-  // ✅ 隨機出題 ✅ 打亂選項 ✅ 倒數計時 ✅ 每題音效 ✅ 小動畫 ✅ 連對 ✅ 完成畫面
-  // ✅ 支援 3 或 4 個選項（3 選 1 / 4 選 1）
-
   const $ = (sel) => document.querySelector(sel);
-
   const fileInput = $('#fileInput');
   const demoBtn = $('#demoBtn');
   const restartBtn = $('#restartBtn');
   const prevBtn = $('#prevBtn');
   const nextBtn = $('#nextBtn');
-
+  const reviewWrongBtn = $('#reviewWrongBtn');
+  const jumpWrongBtn = $('#jumpWrongBtn');
+  const questionCountInput = $('#questionCountInput');
   const timeSelect = $('#timeSelect');
   const soundToggle = $('#soundToggle');
   const autoNextToggle = $('#autoNextToggle');
-
   const qNo = $('#qNo');
   const qText = $('#qText');
   const choicesEl = $('#choices');
-
   const dot = $('#dot');
   const fbText = $('#fbText');
-
   const statTotal = $('#statTotal');
   const statAnswered = $('#statAnswered');
   const statCorrect = $('#statCorrect');
+  const statWrong = $('#statWrong');
   const statAcc = $('#statAcc');
+  const statReview = $('#statReview');
   const statTime = $('#statTime');
-
   const pillProgress = $('#pillProgress');
   const pillCorrect = $('#pillCorrect');
+  const pillWrong = $('#pillWrong');
   const pillCombo = $('#pillCombo');
   const pillMaxCombo = $('#pillMaxCombo');
   const pillTimer = $('#pillTimer');
   const bar = $('#bar');
-
-  // finish overlay elements
   const finishOverlay = $('#finishOverlay');
   const finishCloseBtn = $('#finishCloseBtn');
   const finishReviewBtn = $('#finishReviewBtn');
@@ -415,617 +257,212 @@
   const finishMsg = $('#finishMsg');
   const finishScore = $('#finishScore');
   const finishAcc = $('#finishAcc');
+  const finishWrongCount = $('#finishWrongCount');
   const finishMaxComboEl = $('#finishMaxCombo');
   const finishTimeMode = $('#finishTimeMode');
+  const finishReviewCount = $('#finishReviewCount');
   const emojiRain = $('#emojiRain');
+  const reviewOverlay = $('#reviewOverlay');
+  const reviewCloseBtn = $('#reviewCloseBtn');
+  const reviewList = $('#reviewList');
+  const reviewSummary = $('#reviewSummary');
+  const reviewGoFirstBtn = $('#reviewGoFirstBtn');
+  const reviewRestartBtn = $('#reviewRestartBtn');
 
-  let questions = []; // {text, options:[{label,isCorrect}], correctIndex}
+  let allQuestions = [];
+  let questions = [];
   let idx = 0;
-  let answered = []; // null or {chosenIndex, isCorrect, timedOut}
+  let answered = [];
   let correctCount = 0;
   let combo = 0;
   let maxCombo = 0;
   let finishShown = false;
-
-  // timer
-  let timePerQ = 15; // 0 = off
+  let timePerQ = 15;
   let remaining = 0;
   let timerId = null;
-
-  // audio (WebAudio)
   let audioCtx = null;
 
-  const DEMO_TEXT = `1.
+  const DEMO_TEXT = `1.\n\nThe girl looks _____.\n*happy, happily, happier, happiest\n\n2.\n\nThe teacher spoke _____.\nclear, *clearly, clearer, clearest\n\n3.\n\nJohn feels _____.\n*tired, tiredly, more tired, tiredest\n\n4.\n\nThe children played _____.\nhappy, *happily, happier, happiest\n\n5.\n\nShe is a _____ dancer.\n*good, well, better, best\n\n6.\n\nYesterday, Tom _____ to school.\n*went, goes, will go\n`;
 
-The girl looks _____.
-*happy, happily, happier, happiest
-
-2.
-
-The teacher spoke _____.
-clear, *clearly, clearer, clearest
-
-3.
-
-John feels _____.
-*tired, tiredly, more tired, tiredest
-
-4.
-
-The children played _____.
-happy, *happily, happier, happiest
-
-5.
-
-She is a _____ dancer.
-*good, well, better, best
-
-6.
-
-(3-choice demo) Yesterday, Tom _____ to school.
-*went, goes, will go
-`;
-
-  // --- parsing helpers ---
-  function stripWeirdChars(s){
-    // handle BOM + non-breaking spaces + zero-width
-    return String(s ?? '')
-      .replace(/\uFEFF/g, '')
-      .replace(/\u00A0/g, ' ')
-      .replace(/[\u200B-\u200D\u2060]/g, '');
-  }
-
-  function normalizeLine(s){
-    return stripWeirdChars(s).trim();
-  }
-
-  function looksLikeNumberingLine(line){
-    const t = normalizeLine(line);
-    if(!t) return false;
-    return /^(?:#\d+|\(?\d+\)?[\.)]?)$/.test(t);
-  }
-
+  function stripWeirdChars(s){ return String(s ?? '').replace(/\uFEFF/g, '').replace(/\u00A0/g, ' ').replace(/[\u200B-\u200D\u2060]/g, ''); }
+  function normalizeLine(s){ return stripWeirdChars(s).trim(); }
+  function looksLikeNumberingLine(line){ const t = normalizeLine(line); return !!t && /^(?:#\d+|\(?\d+\)?[\.)]?)$/.test(t); }
   function parseQuizText(text){
-    // Robust newline handling:
-    // - \r\n (Windows), \n (Unix), \r (old Mac)
     const raw = stripWeirdChars(text);
-    const lines = raw
-      .split(/\r\n|\n|\r/g)
-      .map(normalizeLine)
-      .filter(l => l !== '');
-
+    const lines = raw.split(/\r\n|\n|\r/g).map(normalizeLine).filter(l => l !== '');
     const out = [];
     for(let i=0; i<lines.length; i++){
       const line = lines[i];
       if(looksLikeNumberingLine(line)) continue;
-
       const qLine = line;
       const aLine = lines[i+1] ?? '';
-
       if(aLine.includes(',')){
         const parts = aLine.split(',').map(p => p.trim()).filter(Boolean);
-        // ✅ 支援 3 或 4 選
         if(parts.length >= 3){
-          const takeN = parts.length >= 4 ? 4 : 3;
-          const picked = parts.slice(0, takeN);
-          const options = picked.map(p => {
-            const isCorrect = p.startsWith('*');
-            return { label: isCorrect ? p.slice(1).trim() : p, isCorrect };
-          });
+          const picked = parts.slice(0, parts.length >= 4 ? 4 : 3);
+          const options = picked.map(p => ({ label: p.startsWith('*') ? p.slice(1).trim() : p, isCorrect: p.startsWith('*') }));
           const correctIndex = options.findIndex(o => o.isCorrect);
-          out.push({
-            text: qLine,
-            options,
-            correctIndex: correctIndex >= 0 ? correctIndex : 0,
-          });
-          i++; // skip answer line
+          out.push({ text: qLine, options, correctIndex: correctIndex >= 0 ? correctIndex : 0 });
+          i++;
         }
       }
     }
     return out;
   }
 
-  // --- randomization ---
-  function shuffle(arr){
-    const a = arr.slice();
-    for(let i=a.length-1; i>0; i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
+  function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
   function shuffleQuestionAndOptions(q){
-    const indexed = q.options.map((o, i) => ({...o, __i:i}));
+    const indexed = q.options.map((o,i)=>({...o,__i:i}));
     const sh = shuffle(indexed);
-    const newCorrect = sh.findIndex(o => o.__i === q.correctIndex);
-    return {
-      text: q.text,
-      options: sh.map(o => ({ label: o.label, isCorrect: o.isCorrect })),
-      correctIndex: newCorrect >= 0 ? newCorrect : 0,
-    };
+    const newCorrect = sh.findIndex(o=>o.__i===q.correctIndex);
+    return { text:q.text, options:sh.map(o=>({label:o.label,isCorrect:o.isCorrect})), correctIndex:newCorrect>=0?newCorrect:0 };
   }
 
-  // --- UI helpers ---
+  function getRequestedQuestionCount(total){
+    const raw = String(questionCountInput?.value ?? '').trim();
+    if(raw === '') return total;
+    const n = Number(raw);
+    if(!Number.isFinite(n) || n <= 0) return total;
+    return Math.min(Math.floor(n), total);
+  }
+  function syncQuestionCountInput(){
+    const total = allQuestions.length;
+    if(!questionCountInput) return;
+    questionCountInput.placeholder = total > 0 ? `全部(${total})` : '全部';
+    if(questionCountInput.value !== ''){
+      const n = Number(questionCountInput.value);
+      if(Number.isFinite(n) && n > total && total > 0) questionCountInput.value = String(total);
+    }
+  }
+  function buildQuizSessionFromBank(){
+    const total = allQuestions.length;
+    const take = getRequestedQuestionCount(total);
+    return shuffle(allQuestions).slice(0, take).map(shuffleQuestionAndOptions);
+  }
+
   function setFeedback(msg, kind){
     fbText.textContent = msg;
-    dot.classList.remove('good','bad');
+    dot.classList.remove('good','bad','warn');
     if(kind === 'good') dot.classList.add('good');
     if(kind === 'bad') dot.classList.add('bad');
+    if(kind === 'warn') dot.classList.add('warn');
   }
+  function escapeHtml(str){ return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+  function lettersFor(n){ return ['A','B','C','D'].slice(0, Math.max(0, Math.min(4, n))); }
+  function setChoicesLayout(n){ choicesEl.style.gridTemplateColumns = n <= 2 ? '1fr' : '1fr 1fr'; }
 
-  function escapeHtml(str){
-    return String(str)
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'",'&#039;');
-  }
+  function ensureAudio(){ if(!soundToggle.checked) return null; if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{}); return audioCtx; }
+  function playTone(freq, duration=0.12, type='sine', gain=0.06){ const ctx=ensureAudio(); if(!ctx) return; const o=ctx.createOscillator(), g=ctx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=gain; o.connect(g); g.connect(ctx.destination); const t=ctx.currentTime; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(gain,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+duration); o.start(t); o.stop(t+duration+0.02); }
+  function sfxCorrect(){ playTone(660,0.10,'triangle',0.07); setTimeout(()=>playTone(880,0.12,'triangle',0.07),110); }
+  function sfxWrong(){ playTone(220,0.14,'sawtooth',0.05); setTimeout(()=>playTone(170,0.18,'sawtooth',0.05),130); }
+  function sfxTick(){ playTone(520,0.05,'square',0.03); }
+  function sfxTimeUp(){ playTone(300,0.14,'sine',0.06); setTimeout(()=>playTone(260,0.18,'sine',0.06),140); }
+  function sfxFinish(){ playTone(523.25,0.10,'triangle',0.07); setTimeout(()=>playTone(659.25,0.10,'triangle',0.07),110); setTimeout(()=>playTone(783.99,0.14,'triangle',0.08),220); }
 
-  function lettersFor(n){
-    const base = ['A','B','C','D'];
-    return base.slice(0, Math.max(0, Math.min(4, n)));
-  }
+  function stopTimer(){ if(timerId){ clearInterval(timerId); timerId = null; } }
+  function updateTimerUI(){ if(timePerQ <= 0){ statTime.textContent='不計時'; pillTimer.textContent='關'; return; } statTime.textContent=`${remaining} 秒`; pillTimer.textContent=`${remaining}s`; }
+  function startTimerIfNeeded(){ stopTimer(); if(questions.length===0) return; if(timePerQ<=0 || answered[idx]!==null){ remaining=0; updateTimerUI(); return; } remaining=timePerQ; updateTimerUI(); timerId=setInterval(()=>{ remaining--; if(remaining<=5 && remaining>0) sfxTick(); if(remaining<=0){ stopTimer(); onTimeUp(); return; } updateTimerUI(); },1000); }
 
-  function setChoicesLayout(n){
-    // 3/4 選：兩欄；2 選：一欄；1 選：一欄
-    if(!choicesEl) return;
-    if(n <= 2){
-      choicesEl.style.gridTemplateColumns = '1fr';
-    }else{
-      choicesEl.style.gridTemplateColumns = '1fr 1fr';
-    }
-  }
+  function currentWrongIndexes(){ const out=[]; for(let i=0;i<answered.length;i++){ if(answered[i] && !answered[i].isCorrect) out.push(i); } return out; }
+  function firstWrongIndex(){ const list=currentWrongIndexes(); return list.length?list[0]:-1; }
+  function nextWrongIndex(from){ const list=currentWrongIndexes().filter(i=>i>from); if(list.length) return list[0]; const all=currentWrongIndexes(); return all.length?all[0]:-1; }
 
-  // ---------- Audio ----------
-  function ensureAudio(){
-    if(!soundToggle.checked) return null;
-    if(!audioCtx){
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-    return audioCtx;
-  }
-
-  function playTone(freq, duration=0.12, type='sine', gain=0.06){
-    const ctx = ensureAudio();
-    if(!ctx) return;
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    g.gain.value = gain;
-    o.connect(g); g.connect(ctx.destination);
-    const t = ctx.currentTime;
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(gain, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-    o.start(t);
-    o.stop(t + duration + 0.02);
-  }
-
-  function sfxCorrect(){ playTone(660, 0.10, 'triangle', 0.07); setTimeout(()=>playTone(880, 0.12, 'triangle', 0.07), 110); }
-  function sfxWrong(){ playTone(220, 0.14, 'sawtooth', 0.05); setTimeout(()=>playTone(170, 0.18, 'sawtooth', 0.05), 130); }
-  function sfxTick(){ playTone(520, 0.05, 'square', 0.03); }
-  function sfxTimeUp(){ playTone(300, 0.14, 'sine', 0.06); setTimeout(()=>playTone(260, 0.18, 'sine', 0.06), 140); }
-  function sfxFinish(){
-    playTone(523.25, 0.10, 'triangle', 0.07);
-    setTimeout(()=>playTone(659.25, 0.10, 'triangle', 0.07), 110);
-    setTimeout(()=>playTone(783.99, 0.14, 'triangle', 0.08), 220);
-  }
-
-  // ---------- Timer ----------
-  function stopTimer(){
-    if(timerId){ clearInterval(timerId); timerId = null; }
-  }
-
-  function updateTimerUI(){
-    if(timePerQ <= 0){
-      statTime.textContent = '不計時';
-      pillTimer.textContent = '關';
-      return;
-    }
-    statTime.textContent = `${remaining} 秒`;
-    pillTimer.textContent = `${remaining}s`;
-  }
-
-  function startTimerIfNeeded(){
-    stopTimer();
-    if(questions.length === 0) return;
-    if(timePerQ <= 0){ remaining = 0; updateTimerUI(); return; }
-    if(answered[idx] !== null){ remaining = 0; updateTimerUI(); return; }
-
-    remaining = timePerQ;
-    updateTimerUI();
-
-    timerId = setInterval(() => {
-      remaining--;
-      if(remaining <= 5 && remaining > 0) sfxTick();
-      if(remaining <= 0){
-        stopTimer();
-        onTimeUp();
-        return;
-      }
-      updateTimerUI();
-    }, 1000);
-  }
-
-  function onTimeUp(){
-    if(answered[idx] !== null) return;
-    answered[idx] = { chosenIndex: -1, isCorrect: false, timedOut: true };
-
-    combo = 0;
-    sfxTimeUp();
-
-    const main = document.querySelector('.card.main');
-    main?.classList.remove('shake');
-    void main?.offsetWidth;
-    main?.classList.add('shake');
-
-    const q = questions[idx];
-    const correctText = q.options[q.correctIndex]?.label ?? '(答案)';
-    setFeedback(`時間到 ⏰ 正確答案是：${correctText}`, 'bad');
-
-    renderChoicesLocked();
-    updateStats();
-    checkFinish();
-
-    if(autoNextToggle.checked){
-      setTimeout(() => {
-        if(idx < questions.length - 1){ idx++; render(); }
-      }, 650);
-    }
-  }
-
-  // ---------- Render ----------
   function updateStats(){
     const total = questions.length;
     const answeredCount = answered.filter(x => x !== null).length;
+    const wrongCount = currentWrongIndexes().length;
     const acc = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
-
-    statTotal.textContent = String(total);
-    statAnswered.textContent = String(answeredCount);
-    statCorrect.textContent = String(correctCount);
-    statAcc.textContent = `${acc}%`;
-
-    pillProgress.textContent = `${Math.min(idx+1, total)}/${total}`;
-    pillCorrect.textContent = String(correctCount);
-    pillCombo.textContent = String(combo);
-    pillMaxCombo.textContent = String(maxCombo);
-
-    const progress = total === 0 ? 0 : Math.round((answeredCount / total) * 100);
-    bar.style.width = `${progress}%`;
-
-    restartBtn.disabled = total === 0;
-    prevBtn.disabled = total === 0 || idx === 0;
-    nextBtn.disabled = total === 0 || idx >= total - 1;
-
+    statTotal.textContent=String(total); statAnswered.textContent=String(answeredCount); statCorrect.textContent=String(correctCount); statWrong.textContent=String(wrongCount); statReview.textContent=String(wrongCount); statAcc.textContent=`${acc}%`;
+    pillProgress.textContent=`${Math.min(total ? idx+1 : 0, total)}/${total}`; pillCorrect.textContent=String(correctCount); pillWrong.textContent=String(wrongCount); pillCombo.textContent=String(combo); pillMaxCombo.textContent=String(maxCombo);
+    bar.style.width = `${total===0?0:Math.round((answeredCount/total)*100)}%`;
+    restartBtn.disabled = total===0; prevBtn.disabled = total===0 || idx===0; nextBtn.disabled = total===0 || idx>=total-1; reviewWrongBtn.disabled = wrongCount===0; jumpWrongBtn.disabled = wrongCount===0;
     updateTimerUI();
   }
 
   function renderChoicesLocked(){
-    const q = questions[idx];
-    const letters = lettersFor(q.options.length);
-    setChoicesLayout(q.options.length);
-    choicesEl.innerHTML = '';
-
-    q.options.forEach((opt, k) => {
-      const btn = document.createElement('button');
-      btn.className = 'choice';
-      btn.type = 'button';
-      btn.disabled = true;
-      btn.innerHTML = `<span class="badge">${letters[k] ?? ''}</span><span>${escapeHtml(opt.label)}</span>`;
-
-      const ans = answered[idx];
-      if(k === q.correctIndex) btn.classList.add('correct');
-      if(ans && k === ans.chosenIndex && !ans.isCorrect) btn.classList.add('wrong');
-
-      choicesEl.appendChild(btn);
-    });
+    const q=questions[idx], letters=lettersFor(q.options.length); setChoicesLayout(q.options.length); choicesEl.innerHTML='';
+    q.options.forEach((opt,k)=>{ const btn=document.createElement('button'); btn.className='choice'; btn.type='button'; btn.disabled=true; btn.innerHTML=`<span class="badge">${letters[k] ?? ''}</span><span>${escapeHtml(opt.label)}</span>`; const ans=answered[idx]; if(k===q.correctIndex) btn.classList.add('correct'); if(ans && k===ans.chosenIndex && !ans.isCorrect) btn.classList.add('wrong'); choicesEl.appendChild(btn); });
   }
 
   function render(){
     stopTimer();
-
-    if(questions.length === 0){
-      qNo.textContent = '尚未載入題目';
-      qText.textContent = '請先選擇一個 .txt 題目檔，或按「載入示範」。';
-      choicesEl.innerHTML = '';
-      updateStats();
-      return;
-    }
-
-    const q = questions[idx];
-    qNo.textContent = `第 ${idx+1} 題 / 共 ${questions.length} 題`;
-    qText.textContent = q.text;
-
-    qText.classList.remove('pop');
-    void qText.offsetWidth;
-    qText.classList.add('pop');
-
-    const letters = lettersFor(q.options.length);
-    setChoicesLayout(q.options.length);
-    choicesEl.innerHTML = '';
-
-    q.options.forEach((opt, k) => {
-      const btn = document.createElement('button');
-      btn.className = 'choice';
-      btn.type = 'button';
-      btn.innerHTML = `<span class="badge">${letters[k] ?? ''}</span><span>${escapeHtml(opt.label)}</span>`;
-
-      const ans = answered[idx];
-      if(ans){
-        btn.disabled = true;
-        if(k === q.correctIndex) btn.classList.add('correct');
-        if(k === ans.chosenIndex && !ans.isCorrect) btn.classList.add('wrong');
-      }
-
-      btn.addEventListener('click', () => choose(k));
-      choicesEl.appendChild(btn);
-    });
-
-    const ans = answered[idx];
+    if(questions.length===0){ qNo.textContent='尚未載入題目'; qText.textContent='請先選擇一個 .txt 題目檔，或按「載入示範」。'; choicesEl.innerHTML=''; updateStats(); return; }
+    const q=questions[idx]; qNo.textContent=`第 ${idx+1} 題 / 共 ${questions.length} 題`; qText.textContent=q.text; qText.classList.remove('pop'); void qText.offsetWidth; qText.classList.add('pop');
+    const letters=lettersFor(q.options.length); setChoicesLayout(q.options.length); choicesEl.innerHTML='';
+    q.options.forEach((opt,k)=>{ const btn=document.createElement('button'); btn.className='choice'; btn.type='button'; btn.innerHTML=`<span class="badge">${letters[k] ?? ''}</span><span>${escapeHtml(opt.label)}</span>`; const ans=answered[idx]; if(ans){ btn.disabled=true; if(k===q.correctIndex) btn.classList.add('correct'); if(k===ans.chosenIndex && !ans.isCorrect) btn.classList.add('wrong'); } btn.addEventListener('click', ()=>choose(k)); choicesEl.appendChild(btn); });
+    const ans=answered[idx];
     if(ans){
-      if(ans.isCorrect){
-        setFeedback('答對了！你太厲害了 🥳', 'good');
-      }else if(ans.timedOut){
-        const correctText = q.options[q.correctIndex]?.label ?? '(答案)';
-        setFeedback(`時間到 ⏰ 正確答案是：${correctText}`, 'bad');
-      }else{
-        const correctText = q.options[q.correctIndex]?.label ?? '(答案)';
-        setFeedback(`差一點！正確答案是：${correctText} 🙂`, 'bad');
-      }
+      if(ans.isCorrect) setFeedback('答對了！你太厲害了 🥳','good');
+      else if(ans.timedOut) setFeedback(`時間到 ⏰ 正確答案是：${q.options[q.correctIndex]?.label ?? '(答案)'}`,'warn');
+      else setFeedback(`差一點！正確答案是：${q.options[q.correctIndex]?.label ?? '(答案)'} 🙂`,'bad');
       renderChoicesLocked();
-    }else{
-      setFeedback('請點選你覺得正確的選項～', 'neutral');
-    }
-
-    updateStats();
-    startTimerIfNeeded();
-
-    const main = document.querySelector('.card.main');
-    if(ans) main?.classList.remove('glow');
-    else main?.classList.add('glow');
+    }else setFeedback('請點選你覺得正確的選項～','neutral');
+    updateStats(); startTimerIfNeeded();
+    const main=document.querySelector('.card.main'); if(ans) main?.classList.remove('glow'); else main?.classList.add('glow');
   }
 
-  function lockAfterAnswer(){
-    stopTimer();
-    renderChoicesLocked();
-    updateStats();
-
-    if(autoNextToggle.checked){
-      setTimeout(() => {
-        if(idx < questions.length - 1){ idx++; render(); }
-      }, 650);
-    }
-  }
-
+  function lockAfterAnswer(){ stopTimer(); renderChoicesLocked(); updateStats(); if(autoNextToggle.checked){ setTimeout(()=>{ if(idx<questions.length-1){ idx++; render(); } },650); } }
   function choose(k){
-    if(answered[idx] !== null) return;
-
-    const q = questions[idx];
-    const isCorrect = (k === q.correctIndex);
-    answered[idx] = { chosenIndex: k, isCorrect, timedOut: false };
-
-    if(isCorrect){
-      correctCount++;
-      combo++;
-      if(combo > maxCombo) maxCombo = combo;
-    }else{
-      combo = 0;
-    }
-
-    const main = document.querySelector('.card.main');
-    main?.classList.remove('pop','shake');
-    void main?.offsetWidth;
-
-    if(isCorrect){
-      sfxCorrect();
-      main?.classList.add('pop');
-      setFeedback(combo >= 3 ? `答對了！🔥 連對 ${combo} 題！` : '答對了！你太厲害了 🥳', 'good');
-    }else{
-      sfxWrong();
-      main?.classList.add('shake');
-      const correctText = q.options[q.correctIndex]?.label ?? '(答案)';
-      setFeedback(`差一點！正確答案是：${correctText} 🙂`, 'bad');
-    }
-
-    lockAfterAnswer();
-    checkFinish();
+    if(answered[idx]!==null) return;
+    const q=questions[idx], isCorrect=(k===q.correctIndex); answered[idx]={ chosenIndex:k, isCorrect, timedOut:false };
+    if(isCorrect){ correctCount++; combo++; if(combo>maxCombo) maxCombo=combo; } else combo=0;
+    const main=document.querySelector('.card.main'); main?.classList.remove('pop','shake'); void main?.offsetWidth;
+    if(isCorrect){ sfxCorrect(); main?.classList.add('pop'); setFeedback(combo>=3 ? `答對了！🔥 連對 ${combo} 題！` : '答對了！你太厲害了 🥳','good'); }
+    else { sfxWrong(); main?.classList.add('shake'); setFeedback(`差一點！正確答案是：${q.options[q.correctIndex]?.label ?? '(答案)'} 🙂`,'bad'); }
+    lockAfterAnswer(); checkFinish();
+  }
+  function onTimeUp(){
+    if(answered[idx]!==null) return;
+    answered[idx]={ chosenIndex:-1, isCorrect:false, timedOut:true }; combo=0; sfxTimeUp();
+    const main=document.querySelector('.card.main'); main?.classList.remove('shake'); void main?.offsetWidth; main?.classList.add('shake');
+    const q=questions[idx]; setFeedback(`時間到 ⏰ 正確答案是：${q.options[q.correctIndex]?.label ?? '(答案)'}`,'warn'); renderChoicesLocked(); updateStats(); checkFinish();
+    if(autoNextToggle.checked){ setTimeout(()=>{ if(idx<questions.length-1){ idx++; render(); } },650); }
   }
 
   function resetState(){
-    // 🔀 每次重新開始都重新洗牌題目順序（避免看起來沒亂）
-    questions = shuffle(questions).map(shuffleQuestionAndOptions);
-    idx = 0;
-    answered = Array.from({ length: questions.length }, () => null);
-    correctCount = 0;
-    combo = 0;
-    maxCombo = 0;
-    finishShown = false;
-    hideFinish();
-    setFeedback('準備好了就開始吧！', 'neutral');
-    updateStats();
-    render();
+    if(allQuestions.length > 0) questions = buildQuizSessionFromBank();
+    idx=0; answered=Array.from({length:questions.length},()=>null); correctCount=0; combo=0; maxCombo=0; finishShown=false;
+    hideFinish(); hideReview(); setFeedback('準備好了就開始吧！','neutral'); updateStats(); render();
   }
-
   function loadText(text){
-    const parsed = parseQuizText(text);
-    if(parsed.length === 0){
-      alert([
-        '讀不到題目 😿',
-        '',
-        '請檢查文字檔格式：',
-        '- 題目一行',
-        '- 下一行 3～4 個選項用逗號分隔',
-        '- 正確答案前加 *',
-      ].join('\n'));
-      return;
-    }
-
-    // ✅ 隨機出題（洗牌題目） + ✅ 打亂選項
-    questions = shuffle(parsed).map(shuffleQuestionAndOptions);
-    resetState();
+    const parsed=parseQuizText(text);
+    if(parsed.length===0){ alert(['讀不到題目 😿','','請檢查文字檔格式：','- 題目一行','- 下一行 3～4 個選項用逗號分隔','- 正確答案前加 *'].join('\n')); return; }
+    allQuestions=parsed.slice(); syncQuestionCountInput(); resetState();
   }
 
-  // ---------- Self tests (console) ----------
-  function runSelfTests(){
-    const cases = [
-      {
-        name: 'DEMO_TEXT basic',
-        input: DEMO_TEXT,
-        expectMin: 6,
-      },
-      {
-        name: 'Windows CRLF + BOM',
-        input: '\uFEFFThe girl looks _____.\r\n*happy, happily, happier, happiest\r\n\r\nThe teacher spoke _____.\r\nclear, *clearly, clearer, clearest\r\n',
-        expectMin: 2,
-      },
-      {
-        name: 'Weird invisible chars',
-        input: 'The boy runs _____.\u200B\nfast, *fast, faster, fastest\n',
-        expectMin: 1,
-      },
-      {
-        name: 'Numbering lines are ignored',
-        input: '1.\n\nTom runs _____.\n*faster, more fast, fastly, more faster\n\n2)\nShe speaks _____.\n*more slowly, slowlier, slowerly, slowest\n',
-        expectMin: 2,
-      },
-      {
-        name: '3-choice is supported',
-        input: 'Yesterday, Tom _____ to school.\n*went, goes, will go\n',
-        expectMin: 1,
-      },
-    ];
-
-    let ok = true;
-    for(const tc of cases){
-      const got = parseQuizText(tc.input);
-      if(!(got.length >= tc.expectMin)){
-        ok = false;
-        console.error('[SelfTest FAIL]', tc.name, {gotLen: got.length, got});
-      }else{
-        console.log('[SelfTest OK]', tc.name, got.length);
-      }
-    }
-    return ok;
-  }
-
-  function calcStars(acc){
-    if(acc >= 90) return 5;
-    if(acc >= 75) return 4;
-    if(acc >= 60) return 3;
-    if(acc >= 40) return 2;
-    return 1;
-  }
-
-  function timeModeLabel(){
-    if(timePerQ <= 0) return '不計時';
-    return `${timePerQ} 秒/題`;
-  }
-
-  function makeEmojiRain(){
-    if(!emojiRain) return;
-    emojiRain.innerHTML = '';
-    const emojis = ['✨','🌈','🎉','⭐','🧁','🍭','💖'];
-    const count = 26;
-    for(let i=0; i<count; i++){
-      const s = document.createElement('span');
-      s.className = 'emoji';
-      s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-      s.style.left = `${Math.random()*100}%`;
-      s.style.animationDuration = `${1.2 + Math.random()*1.2}s`;
-      s.style.fontSize = `${18 + Math.random()*10}px`;
-      s.style.opacity = `${0.75 + Math.random()*0.25}`;
-      s.style.transform = `translateY(-20px) rotate(${Math.random()*120}deg)`;
-      emojiRain.appendChild(s);
-    }
-  }
-
+  function calcStars(acc){ if(acc>=90) return 5; if(acc>=75) return 4; if(acc>=60) return 3; if(acc>=40) return 2; return 1; }
+  function timeModeLabel(){ return timePerQ<=0 ? '不計時' : `${timePerQ} 秒/題`; }
+  function makeEmojiRain(){ if(!emojiRain) return; emojiRain.innerHTML=''; const emojis=['✨','🌈','🎉','⭐','🧁','🍭','💖']; for(let i=0;i<26;i++){ const s=document.createElement('span'); s.className='emoji'; s.textContent=emojis[Math.floor(Math.random()*emojis.length)]; s.style.left=`${Math.random()*100}%`; s.style.animationDuration=`${1.2+Math.random()*1.2}s`; s.style.fontSize=`${18+Math.random()*10}px`; s.style.opacity=`${0.75+Math.random()*0.25}`; s.style.transform=`translateY(-20px) rotate(${Math.random()*120}deg)`; emojiRain.appendChild(s); } }
   function showFinish(){
-    if(!finishOverlay) return;
-    stopTimer();
-
-    const total = questions.length;
-    const answeredCount = answered.filter(x => x !== null).length;
-    const acc = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
-
-    const stars = '⭐'.repeat(calcStars(acc));
-    finishStars.textContent = stars;
-
-    finishTitle.textContent = acc >= 80 ? '超棒通關！' : (acc >= 60 ? '完成任務！' : '完成挑戰！');
-    finishMsg.textContent = '你完成了全部題目～去跟老師擊掌一下 🖐️';
-
-    finishScore.textContent = `${correctCount}/${total}`;
-    finishAcc.textContent = `${acc}%`;
-    finishMaxComboEl.textContent = String(maxCombo);
-    finishTimeMode.textContent = timeModeLabel();
-
-    makeEmojiRain();
-
-    finishOverlay.classList.add('show');
-    finishShown = true;
-    sfxFinish();
+    stopTimer(); const total=questions.length, answeredCount=answered.filter(x=>x!==null).length, wrongCount=currentWrongIndexes().length, acc=answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+    finishStars.textContent='⭐'.repeat(calcStars(acc)); finishTitle.textContent=acc>=80?'超棒通關！':(acc>=60?'完成任務！':'完成挑戰！'); finishMsg.textContent=wrongCount===0?'全部答對了，太強了！':'你完成了全部題目，現在可以回看錯題再加強 🖐️';
+    finishScore.textContent=`${correctCount}/${total}`; finishAcc.textContent=`${acc}%`; finishWrongCount.textContent=String(wrongCount); finishMaxComboEl.textContent=String(maxCombo); finishTimeMode.textContent=timeModeLabel(); finishReviewCount.textContent=String(wrongCount);
+    makeEmojiRain(); finishOverlay.classList.add('show'); finishShown=true; sfxFinish();
   }
+  function hideFinish(){ finishOverlay?.classList.remove('show'); if(emojiRain) emojiRain.innerHTML=''; }
+  function buildReviewCard(i){ const q=questions[i], ans=answered[i], yourAnswer=ans?.chosenIndex>=0 ? q.options[ans.chosenIndex]?.label : '（未作答 / 時間到）', correctAnswer=q.options[q.correctIndex]?.label ?? '（未知）', tagClass=ans?.timedOut ? 'tagTimeout':'tagWrong', tagText=ans?.timedOut ? '時間到':'答錯'; return `<div class="reviewItem"><div class="reviewHead"><div><b>第 ${i+1} 題</b></div><div class="reviewTag ${tagClass}">${tagText}</div></div><div class="reviewQ">${escapeHtml(q.text)}</div><div class="reviewMeta"><b>你的答案：</b>${escapeHtml(yourAnswer)}</div><div class="reviewMeta"><b>正確答案：</b>${escapeHtml(correctAnswer)}</div></div>`; }
+  function showReview(){ const wrongs=currentWrongIndexes(); if(wrongs.length===0){ reviewSummary.textContent='這次沒有錯題，恭喜全對！'; reviewList.innerHTML='<div class="reviewEmpty"><b>🎉 恭喜！</b><div class="muted" style="margin-top:6px">這次所有題目都答對了，不需要錯題複習。</div></div>'; } else { reviewSummary.textContent=`本次共有 ${wrongs.length} 題需要再看一次。`; reviewList.innerHTML=wrongs.map(buildReviewCard).join(''); } reviewOverlay.classList.add('show'); }
+  function hideReview(){ reviewOverlay?.classList.remove('show'); }
+  function checkFinish(){ const total=questions.length, answeredCount=answered.filter(x=>x!==null).length; if(total>0 && answeredCount===total && !finishShown) showFinish(); }
 
-  function hideFinish(){
-    finishOverlay?.classList.remove('show');
-    emojiRain && (emojiRain.innerHTML = '');
-  }
-
-  function checkFinish(){
-    const total = questions.length;
-    if(total === 0) return;
-    const answeredCount = answered.filter(x => x !== null).length;
-    if(answeredCount === total && !finishShown){
-      showFinish();
-    }
-  }
-
-  // ---------- Events ----------
-  fileInput.addEventListener('change', async (e) => {
-    const f = e.target.files?.[0];
-    if(!f) return;
-    const text = await f.text();
-    loadText(text);
-  });
-
-  demoBtn.addEventListener('click', () => loadText(DEMO_TEXT));
-  restartBtn.addEventListener('click', () => resetState());
-
-  finishCloseBtn?.addEventListener('click', () => hideFinish());
-  finishReviewBtn?.addEventListener('click', () => hideFinish());
-  finishPlayBtn?.addEventListener('click', () => {
-    hideFinish();
-    resetState();
-  });
-
-  // 點背景也可關閉
-  finishOverlay?.addEventListener('click', (e) => {
-    if(e.target === finishOverlay) hideFinish();
-  });
-
-  prevBtn.addEventListener('click', () => { if(idx > 0){ idx--; render(); } });
-  nextBtn.addEventListener('click', () => { if(idx < questions.length - 1){ idx++; render(); } });
-
-  timeSelect.addEventListener('change', () => {
-    timePerQ = parseInt(timeSelect.value, 10) || 0;
-    render();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if(questions.length === 0) return;
-    if(e.key === 'n' || e.key === 'N'){
-      if(idx < questions.length - 1){ idx++; render(); }
-    }
-    if(e.key === 'p' || e.key === 'P'){
-      if(idx > 0){ idx--; render(); }
-    }
-  });
-
-  // Run tests early (no UI impact)
-  runSelfTests();
+  fileInput.addEventListener('change', async (e)=>{ const f=e.target.files?.[0]; if(!f) return; const text=await f.text(); loadText(text); });
+  demoBtn.addEventListener('click', ()=>loadText(DEMO_TEXT));
+  restartBtn.addEventListener('click', ()=>resetState());
+  reviewWrongBtn?.addEventListener('click', showReview);
+  reviewCloseBtn?.addEventListener('click', hideReview);
+  reviewRestartBtn?.addEventListener('click', ()=>{ hideReview(); hideFinish(); resetState(); });
+  reviewGoFirstBtn?.addEventListener('click', ()=>{ const first=firstWrongIndex(); if(first>=0){ hideReview(); hideFinish(); idx=first; render(); } });
+  jumpWrongBtn?.addEventListener('click', ()=>{ const target=nextWrongIndex(idx); if(target>=0){ idx=target; render(); } });
+  finishCloseBtn?.addEventListener('click', ()=>hideFinish());
+  finishReviewBtn?.addEventListener('click', ()=>{ hideFinish(); showReview(); });
+  finishPlayBtn?.addEventListener('click', ()=>{ hideFinish(); resetState(); });
+  finishOverlay?.addEventListener('click', (e)=>{ if(e.target===finishOverlay) hideFinish(); });
+  reviewOverlay?.addEventListener('click', (e)=>{ if(e.target===reviewOverlay) hideReview(); });
+  prevBtn.addEventListener('click', ()=>{ if(idx>0){ idx--; render(); } });
+  nextBtn.addEventListener('click', ()=>{ if(idx<questions.length-1){ idx++; render(); } });
+  timeSelect.addEventListener('change', ()=>{ timePerQ=parseInt(timeSelect.value,10)||0; render(); });
+  questionCountInput?.addEventListener('change', ()=>{ if(allQuestions.length===0) return; syncQuestionCountInput(); resetState(); });
+  document.addEventListener('keydown', (e)=>{ if(questions.length===0) return; if(e.key==='n'||e.key==='N'){ if(idx<questions.length-1){ idx++; render(); } } if(e.key==='p'||e.key==='P'){ if(idx>0){ idx--; render(); } } if(e.key==='r'||e.key==='R'){ if(currentWrongIndexes().length>0) showReview(); } });
 </script>
 </body>
 </html>
